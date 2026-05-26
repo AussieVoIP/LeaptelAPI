@@ -1,0 +1,21 @@
+{
+	"name": "aussievoip/leaptel",
+	"type": "library",
+	"description": "Leaptel API Middleware",
+	"license": "commercial",
+	"require": {
+		"guzzlehttp/guzzle": "^6|^7"
+	},
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Leaptel\\Laravel\\EmbeddedServiceProvider"
+			]
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"Leaptel\\": "src/Leaptel/"
+		}
+	}
+}
