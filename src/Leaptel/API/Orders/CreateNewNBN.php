@@ -44,7 +44,7 @@ class CreateNewNBN extends APIBase
     {
         $this->sq = $sq;
         $this->order->location_id = $this->sq->location_id;
-        $this->order->ntd_type = $this->sq->ntd_type;
+        // $this->order->ntd_type = $this->sq->ntd_type;
         $this->avalableports = [];
         foreach ($this->sq->ntd_ports as $id => $p) {
             if ($p->Available) {
@@ -128,7 +128,7 @@ class CreateNewNBN extends APIBase
     public function usingPlan(WholesalerProduct $plan): CreateNewNBN
     {
         $this->plan = $plan;
-        $this->order->plan_id = $this->plan->plan_id;
+        $this->order->product_id = $this->plan->product_id;
         return $this;
     }
 

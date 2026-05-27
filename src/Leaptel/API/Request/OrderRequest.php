@@ -55,14 +55,6 @@ class OrderRequest extends RequestBase
     public string $order_type = "data";
 
     /**
-     * Plan ID
-     *
-     * @var integer
-     * @OA\Property()
-     */
-    public int $plan_id;
-
-    /**
      * Order After timestamp
      *
      * @var string
