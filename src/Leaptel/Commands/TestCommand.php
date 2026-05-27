@@ -2,12 +2,18 @@
 
 namespace Leaptel\Commands;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use Illuminate\Console\Command;
 use Leaptel\API\Customers;
 use Leaptel\API\Customers\CreateCustomer;
+use Leaptel\API\Orders\CreateNewNBN;
+use Leaptel\API\Customers\CustomerOrders;
 use Leaptel\API\Customers\DeleteCustomer;
 use Leaptel\API\CustServices;
+use Leaptel\API\Models\Component\OrderContact;
 use Leaptel\API\Orders;
+use Leaptel\API\Orders\CreateNewL2NBN;
 use Leaptel\API\Products;
 use Leaptel\API\Request\CustRequest;
 use Leaptel\API\Request\SQ;
@@ -37,27 +43,32 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        $c = new DeleteCustomer(124379);
-        $c->go();
-        exit;
+        $c = new Customers();
+        $res = $c->go();
+        // Dreamtilt
+        $dt = $res['102919'];
+        // Aussie
+        $dt = $res['100943'];
 
-        $cr = new CustRequest();
-        $cr->first_name = "Test";
-        $cr->last_name = "Customer 1";
-        $cr->birthdate = "1980-01-01";
-        $cr->email = "xrobau+testcust@gmail.com";
-        $cr->mobile = "0402077155";
-        $cr->address = "1 Grayson St";
-        $cr->city = "West Gladstone";
-        $cr->state = "QLD";
-        $cr->postcode = "4680";
-        $c = new CreateCustomer($cr);
-        var_dump($c->go());
-        exit;
+        $oc = new OrderContact();
+        $oc->contact_first_name = "Rob";
+        $oc->contact_last_name = "Thomas";
+        $oc->contact_address = "1 Fake St";
+        $oc->contact_suburb = "Brisbane";
+        $oc->contact_state = "QLD";
+        $oc->contact_postcode = "4000";
+        $oc->contact_email = "xrobau+test@gmail.com";
 
-        $o = new Orders();
-        var_dump($o->go());
-        exit;
+        // $order = new CreateNewL2NBN($dt, "1001");
+        $order = new CreateNewNBN($dt);
+        $order->setOrderContact($oc);
+
+        $order->setAuthDetails("authusername", "authpassword", "aussievoip.com.au");
+
+        $after = new DateTimeImmutable('2030-01-01 00:00:01', new DateTimeZone('Australia/Brisbane'));
+        $order->setOrderAfter($after);
+
+        // Get the service qualification
         $sq = new SQ();
         $sq->street_number = 1;
         $sq->street_name = "Grayson St";
@@ -65,22 +76,19 @@ class TestCommand extends Command
         $sq->state = "QLD";
         $sq->postcode = "4680";
         $qual = new ServiceQual($sq);
-        var_dump($qual->go());
-        exit;
+        $sqresp = $qual->go();
 
-        $c = new Customers();
-        $res = $c->go();
-        $dreamtilt = $res['102919'];
-        $cs = new CustServices($dreamtilt);
-        var_dump($cs->go());
-        exit;
+        $order->usingLocation($sqresp);
 
         $p = new Products();
-        $callable = function (WholesalerProduct $p) {
-            return ($p->handoff_type == 'Layer 3');
-        };
-        $p->addFilter($callable);
         $res = $p->go();
-        var_dump($res);
+        $plan = $res['TC4-L3-F-50-20'];
+
+        $order->usingPlan($plan);
+
+        $order->updateSelectedPortByName('1-UNI-D3');
+
+        $req = $order->getOrderRequest();
+        var_dump($req->toArray());
     }
 }

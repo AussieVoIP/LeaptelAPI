@@ -3,6 +3,7 @@
 namespace Leaptel\API;
 
 use Leaptel\API\Response\WholesalerProduct;
+use Leaptel\Models\QueryCache;
 
 /** @package Leaptel\API */
 class Products extends APIBase
@@ -19,14 +20,21 @@ class Products extends APIBase
     }
 
     /** @return array<\Leaptel\API\Response\WholesalerProduct>  */
-    public function go(): array
+    public function go(bool $refresh = false): array
     {
-        $c = $this->getGuzClient();
-        $params = $this->getGuzParams();
-        $resp = $c->request('GET', $this->getFullUrl(), $params);
-        $body = json_decode((string) $resp->getBody(), true);
+        if ($refresh) {
+            QueryCache::purgeCachedUrl($this->getFullUrl());
+        }
+        $q = QueryCache::getCachedResult($this->getFullUrl(), [], 86400);
+        if (!$q) {
+            $c = $this->getGuzClient();
+            $params = $this->getGuzParams();
+            $resp = $c->request('GET', $this->getFullUrl(), $params);
+            $q = json_decode((string) $resp->getBody(), true);
+            QueryCache::cacheResult($this->getFullUrl(), [], $q);
+        }
         $resp = [];
-        foreach ($body as $row) {
+        foreach ($q as $row) {
             $p = new WholesalerProduct($row);
             foreach ($this->filters as $callable) {
                 $r = $callable($p);

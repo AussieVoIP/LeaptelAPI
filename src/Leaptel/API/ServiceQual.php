@@ -5,6 +5,7 @@ namespace Leaptel\API;
 use Leaptel\API\Request\SQ;
 use Leaptel\API\Response\NBNSQResponse;
 use Leaptel\API\Response\WholesalerProduct;
+use Leaptel\Models\QueryCache;
 use Override;
 
 /** @package Leaptel\API */
@@ -25,28 +26,24 @@ class ServiceQual extends APIBase
         return $this->sq->toArray();
     }
 
-    /** @return array<\Leaptel\API\Response\WholesalerProduct>  */
-    public function go(): array
+    /**
+     * @param bool $refresh
+     * @return NBNSQResponse
+     */
+    public function go(bool $refresh = false): NBNSQResponse
     {
-        $c = $this->getGuzClient();
-        $params = $this->getGuzParams();
-        $resp = $c->request('POST', $this->getFullUrl(), $params);
-        $body = json_decode((string) $resp->getBody(), true);
-        $nbn = $body['addresses']['nbn'];
-        $sqresp = new NBNSQResponse($nbn[0]);
-        var_dump($sqresp);
-        exit;
-        $resp = [];
-        foreach ($body as $row) {
-            $p = new WholesalerProduct($row);
-            foreach ($this->filters as $callable) {
-                $r = $callable($p);
-                if ($r === false) {
-                    break (2);
-                }
-            }
-            $resp[$p->product_id] = $p;
+        if ($refresh) {
+            QueryCache::purgeCachedUrl($this->getFullUrl());
         }
-        return $resp;
+        $params = $this->getGuzParams();
+        $body = QueryCache::getCachedResult($this->getFullUrl(), $params, 3600);
+        if (!$body) {
+            $c = $this->getGuzClient();
+            $resp = $c->request('POST', $this->getFullUrl(), $params);
+            $body = json_decode((string) $resp->getBody(), true);
+            QueryCache::cacheResult($this->getFullUrl(), $params, $body);
+        }
+        $nbn = $body['addresses']['nbn'];
+        return new NBNSQResponse($nbn[0]);
     }
 }
