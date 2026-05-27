@@ -89,6 +89,10 @@ class TestCommand extends Command
         $order->updateSelectedPortByName('1-UNI-D3');
 
         $req = $order->getOrderRequest();
-        var_dump($req->toArray());
+        var_dump($req);
+        exit;
+        $res = $order->go();
+        var_dump($res);
+        exit;
     }
 }

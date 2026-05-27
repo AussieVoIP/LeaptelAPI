@@ -11,6 +11,7 @@ use Leaptel\API\Request\OrderRequest;
 use Leaptel\API\Response\Customer;
 use Leaptel\API\Response\NBNSQResponse;
 use Leaptel\API\Response\WholesalerProduct;
+use Override;
 
 /** @package Leaptel\API */
 class CreateNewNBN extends APIBase
@@ -158,12 +159,19 @@ class CreateNewNBN extends APIBase
         return $this->order;
     }
 
+    #[Override]
+    public function getFormParams()
+    {
+        return $this->order->toArray();
+    }
+
     public function go()
     {
         print "Creating an order!\n";
-        exit;
         $c = $this->getGuzClient();
         $params = $this->getGuzParams();
+        $params['debug'] = true;
+        var_dump($params);
         $resp = $c->request('POST', $this->getFullUrl(), $params);
         $body = json_decode((string) $resp->getBody(), true);
         var_dump($body);
