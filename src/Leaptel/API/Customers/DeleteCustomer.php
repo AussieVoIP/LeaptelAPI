@@ -3,8 +3,6 @@
 namespace Leaptel\API\Customers;
 
 use Leaptel\API\APIBase;
-use Leaptel\API\Request\CustRequest;
-use Override;
 
 /** @package Leaptel\API */
 class DeleteCustomer extends APIBase
