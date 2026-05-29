@@ -1,6 +1,6 @@
 <?php
 
-namespace Leaptel\API\Models\Component;
+namespace Leaptel\API\Components;
 
 use Leaptel\API\Schemas\SchemaBase;
 use Leaptel\API\Traits\ContactTrait;

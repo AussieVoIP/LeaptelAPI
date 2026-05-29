@@ -20,8 +20,11 @@ class Products extends APIBase
     }
 
     /** @return array<\Leaptel\API\Response\WholesalerProduct>  */
-    public function go(bool $refresh = false): array
+    public function go(bool $refresh = false, int $loopcount = 0): array
     {
+        if ($loopcount > $this->retrycount) {
+            throw new \Exception("Aborting " . $this->getUrl() . " after $loopcount attempts");
+        }
         if ($refresh) {
             QueryCache::purgeCachedUrl($this->getFullUrl());
         }
@@ -31,6 +34,11 @@ class Products extends APIBase
             $params = $this->getGuzParams();
             $resp = $c->request('GET', $this->getFullUrl(), $params);
             $q = json_decode((string) $resp->getBody(), true);
+            // Make sure there are at least 5 results returned
+            if (count($q) <= 5) {
+                $loopcount++;
+                return $this->go(false, $loopcount);
+            }
             QueryCache::cacheResult($this->getFullUrl(), [], $q);
         }
         $resp = [];

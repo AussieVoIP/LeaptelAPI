@@ -162,12 +162,18 @@ class CustomerOrder extends ResponseBase
     public function getOrderDisplayArray(NBNService $service): array
     {
         $timestamp = $this->timestamp ?? 0;
+        $secs = time() - $timestamp;
+        if ($secs < 5) {
+            $age = "Recent";
+        } else {
+            $age = "$secs seconds ago";
+        }
         $retarr = [
             "Service ID" => $this->service_id,
             "Service" => $service->getDisplayName(false),
             "Order Type" => $this->description,
             "Order Timestamp" => $this->start,
-            "Cache Age" => time() - $timestamp,
+            "Cache Age" => $age,
         ];
         return $retarr;
     }

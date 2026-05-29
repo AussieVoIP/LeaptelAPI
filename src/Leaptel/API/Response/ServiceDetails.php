@@ -2,8 +2,6 @@
 
 namespace Leaptel\API\Response;
 
-use Leaptel\API\Schemas\ResponseBase;
-
 /**
  * @OA\Schema(description="Full Service Response", type="object")
  * @package Leaptel

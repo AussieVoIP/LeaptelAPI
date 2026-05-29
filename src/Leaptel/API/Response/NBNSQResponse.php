@@ -2,7 +2,7 @@
 
 namespace Leaptel\API\Response;
 
-use Leaptel\API\Models\Component\NBNPortRecord;
+use Leaptel\API\Components\NBNPortRecord;
 use Leaptel\API\Schemas\ResponseBase;
 use Leaptel\API\Traits\ServiceQualTrait;
 

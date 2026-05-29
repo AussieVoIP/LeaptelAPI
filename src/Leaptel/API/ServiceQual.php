@@ -30,8 +30,11 @@ class ServiceQual extends APIBase
      * @param bool $refresh
      * @return NBNSQResponse
      */
-    public function go(bool $refresh = false): NBNSQResponse
+    public function go(bool $refresh = false, int $loopcount = 0): NBNSQResponse
     {
+        if ($loopcount > $this->retrycount) {
+            throw new \Exception("Aborting " . $this->getUrl() . " after $loopcount attempts");
+        }
         if ($refresh) {
             QueryCache::purgeCachedUrl($this->getFullUrl());
         }
