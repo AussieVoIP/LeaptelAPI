@@ -27,6 +27,9 @@ class APIBase
     // How long to cache results for.
     protected int $cacheforsecs = 300;
 
+    // Set this to __timestamp to add a hidden timestamp value
+    protected string $addtimestamp = "";
+
     // These are all loaded on demand.
     protected ?string $baseurl = null;
     protected ?string $username = null;
@@ -153,9 +156,16 @@ class APIBase
                     return $this->getMultipleNotPaginated(false, $loopcount);
                 }
                 $obj = new $this->retclass($row);
+
+                if ($this->addtimestamp) {
+                    $obj[$this->addtimestamp] = time();
+                }
+
                 if ($this->indexby) {
                     $key = $obj->{$this->indexby};
                     if (!empty($retarr[$key])) {
+                        print "Original: " . json_encode($retarr[$key]) . "\n";
+                        print "New: " . json_encode($obj) . "\n";
                         throw new \Exception("Bug - duplicate key $key found");
                     }
                     $retarr[$key] = $obj;
@@ -205,6 +215,11 @@ class APIBase
                 $pagination = $body[$paginationkey];
                 foreach ($body[$bodykey] as $row) {
                     $obj = new $this->retclass($row);
+
+                    if ($this->addtimestamp) {
+                        $obj[$this->addtimestamp] = time();
+                    }
+
                     if ($this->indexby) {
                         $key = $obj->{$this->indexby};
                         if (!empty($retarr[$key])) {
@@ -264,6 +279,11 @@ class APIBase
             }
 
             $obj = new $this->retclass($body);
+
+            if ($this->addtimestamp) {
+                $obj[$this->addtimestamp] = time();
+            }
+
             QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($obj)]);
         }
         return $obj;

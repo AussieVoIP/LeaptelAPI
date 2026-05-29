@@ -12,6 +12,13 @@ class CustomerOrders extends APIBase
     protected int $customer_id;
     // protected bool $showurl = true;
 
+    protected string $retclass = CustomerOrder::class;
+    protected string $indexby = "customer_id";
+    protected int $cacheforsecs = 86400;
+
+    // Add a "timestamp" value to these objects
+    protected string $addtimestamp = "timestamp";
+
     public function __construct(int $customer_id)
     {
         $this->customer_id = $customer_id;
@@ -19,44 +26,8 @@ class CustomerOrders extends APIBase
     }
 
     /** @return \Leaptel\API\Response\CustomerOrder[]  */
-    public function go(bool $refresh = false, int $loopcount = 0)
+    public function go(bool $refresh = false): array
     {
-        if ($loopcount > 5) {
-            throw new \Exception("Giving up on " . $this->getFullUrl() . " - too many retries");
-        }
-        $params = $this->getGuzParams();
-        if ($refresh) {
-            QueryCache::purgeCachedUrl($this->getUrl());
-        }
-        $qc = QueryCache::getCachedResult($this->getFullUrl(), $params, 3600);
-        if ($qc) {
-            if ($this->showurl) {
-                print "Using cached request: " . $this->getFullUrl() . "\n";
-            }
-            $retarr = unserialize($qc['s']);
-        } else {
-            if ($this->showurl) {
-                print $this->getUrl() . "\n";
-            }
-            $c = $this->getGuzClient();
-            $resp = $c->request('GET', $this->getFullUrl(), $params);
-            $body = json_decode((string) $resp->getBody(), true);
-            $retarr = [];
-            foreach ($body as $o) {
-                if (empty($o['order_id'])) {
-                    $loopcount++;
-                    if ($this->showurl) {
-                        print "Retrying " . $this->showurl . " - attempt $loopcount\n";
-                        print $resp->getBody() . "\n";
-                    }
-                    return $this->go(false, $loopcount);
-                }
-                $o['timestamp'] = time();
-                $order = new CustomerOrder($o);
-                $retarr[$order->order_id] = $order;
-            }
-            QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($retarr)]);
-        }
-        return $retarr;
+        return $this->getMultipleNotPaginated($refresh);
     }
 }
