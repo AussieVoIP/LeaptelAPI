@@ -11,6 +11,7 @@ use Leaptel\API\Orders\CreateNewNBN;
 use Leaptel\API\Customers\CustomerOrders;
 use Leaptel\API\Customers\DeleteCustomer;
 use Leaptel\API\CustServices;
+use Leaptel\API\GetOrderByID;
 use Leaptel\API\Models\Component\OrderContact;
 use Leaptel\API\Orders;
 use Leaptel\API\Orders\CreateNewL2NBN;
@@ -43,6 +44,10 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        // $o = new GetOrderByID("497080");
+        $o = new CustomerOrders(124717);
+        var_dump($o->go());
+        exit;
         /*
         $c = new Customers();
         $res = $c->go();
