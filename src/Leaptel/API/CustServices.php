@@ -8,22 +8,33 @@ use Leaptel\API\Response\CustomerService;
 /** @package Leaptel\API */
 class CustServices extends APIBase
 {
-    private Customer $c;
-
-    public function __construct(Customer $c)
+    public function __construct(string $custid)
     {
-        $this->c = $c;
-        $this->path = '/customers/' . $c->customer_id . '/services';
+        $this->path = '/customers/' . $custid . '/services';
     }
 
-    public function go()
+    public function go(int $loopcount = 0)
     {
+        if ($loopcount > 5) {
+            throw new \Exception("Giving up on " . $this->getFullUrl() . " - too many retries");
+        }
         $c = $this->getGuzClient();
         $params = $this->getGuzParams();
         $retarr = [];
+        if ($this->showurl) {
+            print "CustServices - " . $this->getFullUrl() . "\n";
+        }
         $resp = $c->request('GET', $this->getFullUrl(), $params);
         $body = json_decode((string) $resp->getBody(), true);
         foreach ($body as $row) {
+            if (!$row) {
+                if ($this->showurl) {
+                    print $resp->getBody() . "\n";
+                    print "Retrying\n";
+                }
+                $loopcount++;
+                return $this->go($loopcount);
+            }
             $p = new CustomerService($row);
             foreach ($this->filters as $callable) {
                 $r = $callable($p);

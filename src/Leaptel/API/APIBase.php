@@ -10,6 +10,9 @@ class APIBase
 {
     public static ?Client $guz = null;
 
+    // Turn this on if you're having wierd errors, it'll show you every url it's requesting
+    protected bool $showurl = false;
+
     // These are all loaded on demand.
     protected ?string $baseurl = null;
     protected ?string $username = null;
@@ -66,6 +69,7 @@ class APIBase
 
         $auth = [$this->username, $this->password];
         $params = ['debug' => false, 'http_errors' => false, "auth" => $auth, 'curl' => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,]];
+        $params['headers'] = ['User-Agent' => 'LeaptelAPI/1.0.1', 'Accept' => 'application/json'];
         $formparams = $this->getFormParams();
         if ($formparams) {
             $params['form_params'] = $formparams;

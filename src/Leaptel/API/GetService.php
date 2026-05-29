@@ -20,12 +20,29 @@ class GetService extends APIBase
     }
 
     /** @return ServiceDetails  */
-    public function go(): ServiceDetails
+    public function go(int $loopcount = 0): ServiceDetails
     {
+        if ($loopcount > 5) {
+            throw new \Exception("Giving up on " . $this->getFullUrl() . " - too many retries");
+        }
         $c = $this->getGuzClient();
         $params = $this->getGuzParams();
+        if ($this->showurl) {
+            print "GetService - " . $this->getFullUrl() . "\n";
+        }
         $resp = $c->request('GET', $this->getFullUrl(), $params);
         $body = json_decode((string) $resp->getBody(), true);
+        if (!empty($body['message'])) {
+            if ($this->showurl) {
+                print $resp->getBody() . "\n";
+                print "Retrying\n";
+            }
+            $loopcount++;
+            return $this->go($loopcount);
+        }
+        if (empty($body['avc_id'])) {
+            $body['avc_id'] = "OTHER";
+        }
         return new ServiceDetails($body);
     }
 }

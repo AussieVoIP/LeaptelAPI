@@ -13,16 +13,16 @@ class ServiceDetails extends CustomerService
     /**
      * Username
      *
-     * @var string
+     * @var null|string
      * @OA\Property()
      */
-    public string $ppoe_username;
+    public ?string $ppoe_username;
 
     /**
      * Password
      *
-     * @var string
+     * @var null|string
      * @OA\Property()
      */
-    public string $ppoe_password;
+    public ?string $ppoe_password;
 }

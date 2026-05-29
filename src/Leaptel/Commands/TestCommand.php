@@ -43,6 +43,7 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        /*
         $c = new Customers();
         $res = $c->go();
         // Dreamtilt
@@ -79,9 +80,12 @@ class TestCommand extends Command
         $sqresp = $qual->go();
 
         $order->usingLocation($sqresp);
+        */
 
         $p = new Products();
         $res = $p->go();
+        var_dump($res);
+        exit;
         $plan = $res['TC4-L3-F-50-20'];
 
         $order->usingPlan($plan);
