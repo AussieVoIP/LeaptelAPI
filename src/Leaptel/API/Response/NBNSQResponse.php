@@ -3,6 +3,7 @@
 namespace Leaptel\API\Response;
 
 use Leaptel\API\Components\NBNPortRecord;
+use Leaptel\API\Components\NPISServiceQual;
 use Leaptel\API\Schemas\ResponseBase;
 use Leaptel\API\Traits\ServiceQualTrait;
 
@@ -14,6 +15,8 @@ class NBNSQResponse extends ResponseBase
 {
     use ServiceQualTrait;
 
+    private array $__raw = [];
+
     public array $__mappings = [
         "lot_no" => "lotNumber",
         "street_number" => "roadNumber1",
@@ -24,12 +27,21 @@ class NBNSQResponse extends ResponseBase
 
     protected function finishImport(array $row)
     {
+        $sr = $row['output']['siteRestriction'][0];
+        $this->npis = new NPISServiceQual($sr);
         $records = $row['NBNPortRecord'] ?? [];
         $this->ntd_ports = [];
         foreach ($records as $r) {
             $pr = new NBNPortRecord($r);
+            $pr->addNPIS($this->npis);
             $this->ntd_ports[$pr->Id] = $pr;
         }
+        $this->__raw = $row;
+    }
+
+    public function getRawResp(): array
+    {
+        return $this->__raw;
     }
 
     /**
@@ -183,4 +195,35 @@ class NBNSQResponse extends ResponseBase
      * @OA\Property()
      */
     public array $ntd_ports;
+
+    /**
+     * NPIS Response
+     *
+     * @var NPISServiceQual
+     * @OA\Property()
+     */
+    public NPISServiceQual $npis;
+
+    public function getAddress(): string
+    {
+        return $this->formattedAddress;
+    }
+
+    public function getSummaryArray(): array
+    {
+        $ts = $this->timestamp  ?? 0;
+        $age = time() - $ts;
+        if ($age < 5) {
+            $cachetxt = "Fresh";
+        } else {
+            $cachetxt = "$age seconds";
+        }
+        $retarr = [
+            "Address" => $this->getAddress(),
+            "Tech" => $this->access_technology . " (" . $this->service_type . ")",
+            "NTD" => join(" ", [$this->equipment_type, $this->equipment_version, $this->ntd_type]),
+            "Cache Age" => $cachetxt,
+        ];
+        return $retarr;
+    }
 }

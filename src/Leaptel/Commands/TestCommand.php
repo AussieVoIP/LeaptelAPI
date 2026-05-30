@@ -3,6 +3,8 @@
 namespace Leaptel\Commands;
 
 use Illuminate\Console\Command;
+use Leaptel\API\Location\GetServiceQual;
+use Leaptel\API\Request\SQ;
 use Leaptel\API\ServiceAssurance\GetServiceAssuranceTests;
 
 class TestCommand extends Command
@@ -28,8 +30,17 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        $sa = (new GetServiceAssuranceTests())->go();
-        var_dump($sa);
+        $sq = new SQ();
+        $sq->location_id = "LOC000172784710";
+        $q = (new GetServiceQual($sq))->go();
+        /** @var \Leaptel\API\Response\NBNSQResponse $q */
+        foreach ($q->ntd_ports as $name => $p) {
+            print "$name is " . json_encode($p) . "\n";
+            var_dump($p->getPortDetailsString());
+        }
+        exit;
+        var_dump($q->ntd_ports);
+
         exit;
     }
 }

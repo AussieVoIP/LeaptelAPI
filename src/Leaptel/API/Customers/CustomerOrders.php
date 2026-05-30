@@ -13,7 +13,7 @@ class CustomerOrders extends APIBase
     // protected bool $showurl = true;
 
     protected string $retclass = CustomerOrder::class;
-    protected string $indexby = "customer_id";
+    protected string $indexby = "order_id";
     protected int $cacheforsecs = 86400;
 
     // Add a "timestamp" value to these objects

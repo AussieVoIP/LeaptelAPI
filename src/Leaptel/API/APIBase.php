@@ -13,6 +13,7 @@ class APIBase
     public static ?Client $guz = null;
 
     // Turn this on if you're having wierd errors, it'll show you every url it's requesting
+    // protected bool $showurl = true;
     protected bool $showurl = false;
 
     // Retry requests this many times before aborting
@@ -273,6 +274,59 @@ class APIBase
             }
             if ($body === false) {
                 return $this->getSingle(false, $validator, $loopcount);
+            }
+            if ($body === null) {
+                return null;
+            }
+
+            $obj = new $this->retclass($body);
+
+            if ($this->addtimestamp) {
+                $obj[$this->addtimestamp] = time();
+            }
+
+            QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($obj)]);
+        }
+        return $obj;
+    }
+
+    protected function postSingle(bool $refresh = false, $validator = null, int $loopcount = 0): mixed
+    {
+        if ($loopcount > $this->retrycount) {
+            throw new \Exception("Aborting " . $this->getFullUrl() . " after $loopcount attempts");
+        }
+        $params = $this->getGuzParams();
+        if ($refresh) {
+            QueryCache::purgeCachedUrl($this->getUrl());
+        }
+        // $params['debug'] = true;
+        $qc = QueryCache::getCachedResult($this->getUrl(), $params, $this->cacheforsecs);
+        if ($qc) {
+            if ($this->showurl) {
+                print "Using cached request: " . $this->getUrl() . "\n";
+            }
+            $obj = unserialize($qc['s']);
+        } else {
+            if ($this->showurl) {
+                print $this->getUrl() . "\n";
+            }
+            $c = $this->getGuzClient();
+            $loopcount++;
+            $resp = $c->request('POST', $this->getFullUrl(), $params);
+            $body = json_decode((string) $resp->getBody(), true);
+            if (isset($body['error'])) {
+                if ($this->showurl) {
+                    print $resp->getBody() . "\n";
+                    print "Retrying\n";
+                }
+                return $this->postSingle(false, $validator, $loopcount);
+            }
+
+            if (is_callable($validator)) {
+                $body = $validator($body);
+            }
+            if ($body === false) {
+                return $this->postSingle(false, $validator, $loopcount);
             }
             if ($body === null) {
                 return null;

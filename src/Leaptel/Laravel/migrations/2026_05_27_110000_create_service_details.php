@@ -20,12 +20,13 @@ return new class extends Migration
             $table->dateTime('start_date');
             $table->dateTime('finish_date')->nullable();
             $table->char('location_id');
+            $table->integer('portnum')->nullable();
             $table->char('avc_id')->nullable();
             $table->json('raw')->nullable();
             $table->json('alldetails')->nullable();
             $table->timestamps();
-            $table->index('service_id');
             $table->index('customer_id');
+            $table->index(['location_id', 'portnum']);
         });
     }
 

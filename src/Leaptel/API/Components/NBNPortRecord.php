@@ -2,7 +2,9 @@
 
 namespace Leaptel\API\Components;
 
+use Leaptel\API\Response\NBNSQResponse;
 use Leaptel\API\Schemas\SchemaBase;
+use Override;
 
 /**
  * @OA\Schema(description="NBN Port Record, from Service Qualification", type="object")
@@ -105,4 +107,32 @@ class NBNPortRecord extends SchemaBase
      * @OA\Property()
      */
     public int $SelfInstall;
+
+    public ?array $PortDetails = null;
+
+    public function getPortDetailsString(): string
+    {
+        if (!$this->PortDetails) {
+            return "";
+        }
+        $spname = $this->PortDetails['serviceProviderName'] ?? "Unknown";
+        $spid = $this->PortDetails['serviceProviderId'] ?? "9999";
+        return " - $spname ($spid)";
+    }
+
+    public function addNPIS(NPISServiceQual $npis)
+    {
+        $port = $npis->getSupportingProduct($this->PortName);
+        if ($port) {
+            $this->PortDetails = $port;
+        }
+    }
+
+    public mixed $supportingProduct = null;
+
+    public function getDescription(): string
+    {
+        $retstr = $this->Status;
+        return $retstr . " " . $this->getPortDetailsString();
+    }
 }

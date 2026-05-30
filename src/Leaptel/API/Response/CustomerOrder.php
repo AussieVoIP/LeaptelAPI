@@ -2,8 +2,8 @@
 
 namespace Leaptel\API\Response;
 
-use App\Models\NBNService;
 use Leaptel\API\Schemas\ResponseBase;
+use Leaptel\Models\NBNService;
 
 /**
  * @OA\Schema(description="Customer Order from Customers/CustomerOrders ", type="object")
@@ -164,7 +164,7 @@ class CustomerOrder extends ResponseBase
         $timestamp = $this->timestamp ?? 0;
         $secs = time() - $timestamp;
         if ($secs < 5) {
-            $age = "Recent";
+            $age = "Fresh";
         } else {
             $age = "$secs seconds ago";
         }
@@ -180,9 +180,15 @@ class CustomerOrder extends ResponseBase
 
     public function getPreformatted(): array
     {
-        $retarr = ["Latest Comment" => $this->latest_comment];
+        $retarr = ["Latest" => $this->latest_comment];
         if (!empty($this->latest_provider_comment)) {
-            $retarr["Provider Comment"] = $this->latest_provider_comment;
+            $retarr["Provider"] = $this->latest_provider_comment;
+        }
+        if (!empty($this->latest_system_comment)) {
+            $retarr["System"] = $this->latest_system_comment;
+        }
+        if (!empty($this->latest_non_system_comment)) {
+            $retarr["Details"] = $this->latest_non_system_comment;
         }
         return $retarr;
     }

@@ -19,7 +19,8 @@ class NBNService extends Model
             "product_id" => $cs->product_id,
             "plan_id" => $cs->wholesale_plan_id,
             "start_date" => $cs->start_date,
-            "location_id" => $cs->identifier
+            "location_id" => $cs->identifier,
+            "portnum" => (int) $cs->port_id,
         ];
         $params['avc_id'] = $cs->avc_id ?? null;
         $params['raw'] = json_encode($cs->toArray());
