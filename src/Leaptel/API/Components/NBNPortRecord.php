@@ -128,7 +128,7 @@ class NBNPortRecord extends SchemaBase
         }
         $spname = $this->PortDetails['serviceProviderName'] ?? "Unknown";
         $spid = $this->PortDetails['serviceProviderId'] ?? "9999";
-        return " - $spname ($spid)";
+        return " $spname ($spid)";
     }
 
     public function addNPIS(NPISServiceQual $npis)
@@ -158,9 +158,11 @@ class NBNPortRecord extends SchemaBase
         return "Error";
     }
 
-    public function getDescription(): string
+    public function getDescription(bool $withstatus = true): string
     {
-        $retstr = $this->Status;
-        return $retstr . " " . $this->getPortDetailsString();
+        if ($withstatus) {
+            return $this->Status . " " . $this->getPortDetailsString();
+        }
+        return $this->getPortDetailsString();
     }
 }
