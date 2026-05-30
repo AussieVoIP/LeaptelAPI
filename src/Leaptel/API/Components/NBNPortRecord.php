@@ -4,6 +4,7 @@ namespace Leaptel\API\Components;
 
 use Leaptel\API\Response\NBNSQResponse;
 use Leaptel\API\Schemas\SchemaBase;
+use Leaptel\Models\NBNService;
 use Override;
 
 /**
@@ -108,7 +109,17 @@ class NBNPortRecord extends SchemaBase
      */
     public int $SelfInstall;
 
+    /**
+     * Location ID
+     *
+     * @var string
+     * @OA\Property()
+     */
+    public string $location_id = "";
+
     public ?array $PortDetails = null;
+
+    public mixed $supportingProduct = null;
 
     public function getPortDetailsString(): string
     {
@@ -128,7 +139,24 @@ class NBNPortRecord extends SchemaBase
         }
     }
 
-    public mixed $supportingProduct = null;
+    public function isRelatedPort(array $custids)
+    {
+        if (!$this->PortDetails) {
+            return "create";
+        }
+        $spid = $this->PortDetails['serviceProviderId'] ?? "9999";
+        if ($spid != "0662") {
+            return "port";
+        }
+        // Now see if this port is owned by a custid we know
+        $service = NBNService::where(['location_id' => $this->location_id, 'portnum' => $this->PortNumber])->get();
+        foreach ($service as $s) {
+            if (!empty($custids[$s->customer_id])) {
+                return $s->service_id;
+            }
+        }
+        return "Error";
+    }
 
     public function getDescription(): string
     {

@@ -33,6 +33,7 @@ class NBNSQResponse extends ResponseBase
         $this->ntd_ports = [];
         foreach ($records as $r) {
             $pr = new NBNPortRecord($r);
+            $pr->location_id = $row['location_id'];
             $pr->addNPIS($this->npis);
             $this->ntd_ports[$pr->Id] = $pr;
         }
