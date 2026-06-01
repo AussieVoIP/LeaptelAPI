@@ -4,6 +4,8 @@ namespace Leaptel\Commands;
 
 use Illuminate\Console\Command;
 use Leaptel\Addressify\AutoComplete;
+use Leaptel\API\Customers;
+use Leaptel\API\Customers\GetAllCustomers;
 use Leaptel\API\Location\GetServiceQual;
 use Leaptel\API\Request\SQ;
 use Leaptel\API\ServiceAssurance\GetServiceAssuranceTests;
@@ -32,6 +34,9 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        $cust = (new GetAllCustomers())->go();
+        var_dump($cust);
+        exit;
         $location = [
             "street_number" => 1,
             "street_name" => "Grayson St",

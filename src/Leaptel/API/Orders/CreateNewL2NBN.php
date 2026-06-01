@@ -2,12 +2,12 @@
 
 namespace Leaptel\API\Orders;
 
-use Leaptel\API\Response\Customer;
+use Leaptel\API\Response\CustomerResponse;
 
 /** @package Leaptel\API */
 class CreateNewL2NBN extends CreateNewNBN
 {
-    public function __construct(Customer $cust, string $lvc_id = "44", string $lvc_c_tag = "0")
+    public function __construct(CustomerResponse $cust, string $lvc_id = "44", string $lvc_c_tag = "0")
     {
         parent::__construct($cust);
         $this->order->layer_2 = "yes";

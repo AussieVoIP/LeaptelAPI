@@ -2,12 +2,12 @@
 
 namespace Leaptel\Actions;
 
-use Leaptel\API\Response\Customer;
+use Leaptel\API\Response\CustomerResponse;
 
 class CreateService
 {
     public function __construct(
-        public Customer $cust
+        public CustomerResponse $cust
     ) {
         print "thingy\n";
     }

@@ -206,7 +206,7 @@ class APIBase
                 $this->query = "?page=" . $pagination["next_page"];
                 $resp = $c->request('GET', $this->getFullUrl(), $params);
                 $body = json_decode((string) $resp->getBody(), true);
-                if (empty($body['customers'])) {
+                if (empty($body[$bodykey])) {
                     $loopcount++;
                     if ($this->showurl) {
                         print "Retrying " . $this->showurl . " - attempt $loopcount\n";

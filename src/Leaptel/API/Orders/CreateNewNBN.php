@@ -8,7 +8,7 @@ use Leaptel\API\APIBase;
 use Leaptel\API\Components\NBNPortRecord;
 use Leaptel\API\Components\OrderContact;
 use Leaptel\API\Request\OrderRequest;
-use Leaptel\API\Response\Customer;
+use Leaptel\API\Response\CustomerResponse;
 use Leaptel\API\Response\NBNSQResponse;
 use Leaptel\API\Response\WholesalerProduct;
 use Override;
@@ -18,14 +18,14 @@ class CreateNewNBN extends APIBase
 {
     protected string $path = '/orders';
     protected OrderRequest $order;
-    protected Customer $cust;
+    protected CustomerResponse $cust;
     protected ?NBNSQResponse $sq = null;
     protected ?WholesalerProduct $plan = null;
     protected array $avalableports = [];
     protected ?NBNPortRecord $port = null;
     protected ?OrderContact $oc = null;
 
-    public function __construct(Customer $cust)
+    public function __construct(CustomerResponse $cust)
     {
         $this->cust = $cust;
         $this->order = new OrderRequest();

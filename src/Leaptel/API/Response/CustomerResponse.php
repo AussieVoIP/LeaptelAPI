@@ -9,7 +9,7 @@ use Leaptel\API\Traits\CustomerTrait;
  * @OA\Schema(description="Customer Information", type="object")
  * @package Leaptel
  */
-class Customer extends ResponseBase
+class CustomerResponse extends ResponseBase
 {
     use CustomerTrait;
 

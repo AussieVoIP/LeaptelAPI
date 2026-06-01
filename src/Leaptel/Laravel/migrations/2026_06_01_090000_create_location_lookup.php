@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->char('source');
             $table->char('state');
-            $table->char('lochash');
+            $table->char('lochash', 200);
             $table->timestamps();
             $table->index(["source"]);
         });
