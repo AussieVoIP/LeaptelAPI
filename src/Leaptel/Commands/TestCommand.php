@@ -3,9 +3,11 @@
 namespace Leaptel\Commands;
 
 use Illuminate\Console\Command;
+use Leaptel\Addressify\AutoComplete;
 use Leaptel\API\Location\GetServiceQual;
 use Leaptel\API\Request\SQ;
 use Leaptel\API\ServiceAssurance\GetServiceAssuranceTests;
+use Leaptel\Models\Location;
 
 class TestCommand extends Command
 {
@@ -30,6 +32,20 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        $location = [
+            "street_number" => 1,
+            "street_name" => "Grayson St",
+            "suburb" => "West Gladstone",
+            "state" => "QLD",
+            "postcode" => "4680",
+        ];
+
+        $ac = new AutoComplete("1 Grayson St", "QLD");
+        var_dump($ac->go());
+        exit;
+        var_dump(Location::genPriKey($location));
+        exit;
+
         $sq = new SQ();
         $sq->location_id = "LOC000172784710";
         $q = (new GetServiceQual($sq))->go();

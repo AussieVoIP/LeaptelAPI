@@ -7,7 +7,6 @@ use Exception;
 /** @package Leaptel */
 class Leaptel
 {
-
     // Cache for secret.json
     private static ?array $sjson = null;
 
@@ -31,7 +30,7 @@ class Leaptel
             }
             $sjson = json_decode(file_get_contents($sfile), true);
             self::$sjson = [];
-            $shouldhave = ["baseurl", "username", "password"];
+            $shouldhave = ["baseurl", "username", "password", "addressifyurl", "addressify_api_key"];
             foreach ($shouldhave as $k) {
                 if (empty($sjson[$k])) {
                     throw new \Exception("Key $k missing from $sfile");
