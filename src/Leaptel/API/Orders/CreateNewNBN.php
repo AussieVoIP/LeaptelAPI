@@ -2,6 +2,7 @@
 
 namespace Leaptel\API\Orders;
 
+use App\Models\Product;
 use DateTimeInterface;
 use Exception;
 use Leaptel\API\APIBase;
@@ -17,19 +18,20 @@ use Override;
 class CreateNewNBN extends APIBase
 {
     protected string $path = '/orders';
+    protected string $custid;
     protected OrderRequest $order;
-    protected CustomerResponse $cust;
     protected ?NBNSQResponse $sq = null;
     protected ?WholesalerProduct $plan = null;
+    protected ?Product $product = null;
     protected array $avalableports = [];
     protected ?NBNPortRecord $port = null;
     protected ?OrderContact $oc = null;
 
-    public function __construct(CustomerResponse $cust)
+    public function __construct(string $custid)
     {
-        $this->cust = $cust;
+        $this->custid = $custid;
         $this->order = new OrderRequest();
-        $this->order->customer_id = $this->cust->customer_id;
+        $this->order->customer_id = $this->custid;
         $this->order->carrier = "nbn";
         $this->order->order_type = "data";
         $this->order->connection_type = "new";
@@ -130,6 +132,14 @@ class CreateNewNBN extends APIBase
     {
         $this->plan = $plan;
         $this->order->product_id = $this->plan->product_id;
+        return $this;
+    }
+
+    public function usingProduct(Product $product): CreateNewNBN
+    {
+        $this->product = $product;
+        $this->order->product_id = $this->product->product_id;
+        $this->order->plan_id = $this->product->plan_id;
         return $this;
     }
 

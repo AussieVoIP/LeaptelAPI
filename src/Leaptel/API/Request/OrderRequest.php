@@ -41,10 +41,10 @@ class OrderRequest extends RequestBase
     /**
      * AVC ID
      *
-     * @var string
+     * @var null|string
      * @OA\Property()
      */
-    public string $avc_id = "";
+    public ?string $avc_id;
 
     /**
      * Order Type ('data')
@@ -55,12 +55,20 @@ class OrderRequest extends RequestBase
     public string $order_type = "data";
 
     /**
-     * Order After timestamp
+     * Plan ID (int)
      *
-     * @var string
+     * @var null|integer
      * @OA\Property()
      */
-    public string $order_after;
+    public ?int $plan_id;
+
+    /**
+     * Order After timestamp
+     *
+     * @var null|string
+     * @OA\Property()
+     */
+    public ?string $order_after;
 
     /**
      * Connection Type ('new','transfer')
