@@ -80,8 +80,16 @@ class NBNService extends Model
         return $raw->description;
     }
 
+    public function isNbnService(): bool
+    {
+        return ($this->plan_id != 1758);
+    }
+
     public function getServiceSpeed(): string
     {
+        if ($this->plan_id == 1758) {
+            return "Dark Fibre NNI";
+        }
         $raw = $this->getRawObj();
         return $raw->service_speed;
     }
@@ -99,6 +107,10 @@ class NBNService extends Model
 
         $type = $raw->ntd_type ?? "Unknown";
         $nvers = $raw->ntd_version ?? "Unknown";
+        if (empty($d->access_technology)) {
+            return [];
+        }
+
         $retarr = [
             "CPE Type" => $d->access_technology . " (" . $d->access_type . ")",
             "Port No" => $raw->port_id,
@@ -111,13 +123,15 @@ class NBNService extends Model
 
     public function getTransitDetails(): array
     {
-        $raw = $this->getRawObj();
         $d = $this->getAllDetailsObj();
+        if (empty($d->access_technology)) {
+            return [];
+        }
         $retarr = [
             "Username" => $d->ppoe_username,
             "Password" => $d->ppoe_password,
-            "VLAN Tagged" => $d->vlan_tagging,
-            "CGNAT" => $d->cgnat,
+            "VLAN Tagged" => $d->vlan_tagging ?? "N/A",
+            "CGNAT" => $d->cgnat ?? "N/A",
         ];
         if (!empty($d->staticip)) {
             $retarr['Static IP'] = $d->staticip;

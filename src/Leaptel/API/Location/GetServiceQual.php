@@ -5,7 +5,6 @@ namespace Leaptel\API\Location;
 use Leaptel\API\APIBase;
 use Leaptel\API\Request\SQ;
 use Leaptel\API\Response\NBNSQResponse;
-use Leaptel\Models\QueryCache;
 use Override;
 
 /** @package Leaptel\API */
@@ -34,7 +33,7 @@ class GetServiceQual extends APIBase
      * @param bool $refresh
      * @return NBNSQResponse
      */
-    public function go(bool $refresh = false, int $loopcount = 0): NBNSQResponse
+    public function go(bool $refresh = false): NBNSQResponse
     {
         $validator = function ($body) {
             if (empty($body['addresses'])) {

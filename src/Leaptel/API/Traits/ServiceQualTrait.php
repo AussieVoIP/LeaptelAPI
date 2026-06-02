@@ -50,12 +50,12 @@ trait ServiceQualTrait
     public string $level = "";
 
     /**
-     * Street Number
+     * Street Number (Int or string - eg 4 or "36000b")
      *
-     * @var integer
+     * @var null|int|string
      * @OA\Property()
      */
-    public ?int $street_number = null;
+    public $street_number = null;
 
     /**
      * Street Name

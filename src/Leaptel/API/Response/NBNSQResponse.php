@@ -227,4 +227,15 @@ class NBNSQResponse extends ResponseBase
         ];
         return $retarr;
     }
+
+    public function getSQAge(): int
+    {
+        $sqage = time() - $this->timestamp;
+        return $sqage;
+    }
+
+    public function isSQTooOld(int $maxage = 600): bool
+    {
+        return ($this->getSQAge() > $maxage);
+    }
 }
