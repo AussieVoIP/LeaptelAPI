@@ -22,6 +22,9 @@ return new class extends Migration
             $table->char('location_id');
             $table->integer('portnum')->nullable();
             $table->char('avc_id')->nullable();
+            $table->char('lvc_id')->nullable();
+            $table->char('lvc_name')->nullable();
+            $table->char('lvc_c_tag')->nullable();
             $table->json('raw')->nullable();
             $table->json('alldetails')->nullable();
             $table->timestamps();

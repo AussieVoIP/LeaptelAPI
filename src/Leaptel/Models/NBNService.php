@@ -21,11 +21,31 @@ class NBNService extends Model
             "start_date" => $cs->start_date,
             "location_id" => $cs->identifier,
             "portnum" => (int) $cs->port_id,
+            "lvc_id" => null,
+            "lvc_name" => null,
+            "lvc_c_tag" => null,
         ];
         $params['avc_id'] = $cs->avc_id ?? null;
         $params['raw'] = json_encode($cs->toArray());
         if ($sd) {
             $params['alldetails'] = json_encode($sd->toArray());
+        }
+        $l2 = $cs->layer_2_details ?? null;
+        if ($l2) {
+            $params['lvc_id'] = $l2['lvc_id'];
+            $params['lvc_name'] = $l2['lvc_name'];
+            $params['lvc_c_tag'] = $l2['lvc_c_tag'];
+            $ctag = CTagsMap::where(["lvc_id" => $params['lvc_id'], "ctag" => $params['lvc_c_tag']])->first();
+            if (!$ctag) {
+                throw new \Exception("CTAG " . json_encode($l2) . " does not exist, database error");
+            }
+            if ($ctag->customer_id != $cs->customer_id) {
+                throw new \Exception("Ctag " . json_encode($ctag) . " is not owned by custid " . $cs->customer_id);
+            }
+            if ($ctag->service_id != $cs->service_id) {
+                $ctag->service_id = $cs->service_id;
+                $ctag->save();
+            }
         }
 
         $m = self::firstOrCreate(['service_id' => $cs->service_id], $params);
@@ -44,6 +64,11 @@ class NBNService extends Model
             $m->save();
         }
         return $m;
+    }
+
+    public function isL2Service(): bool
+    {
+        return $this->lvc_c_tag !== null;
     }
 
     public function getRawObj(bool $array = false)
@@ -127,6 +152,24 @@ class NBNService extends Model
         if (empty($d->access_technology)) {
             return [];
         }
+        if ($this->isL2Service()) {
+            return $this->getL2TransitDetails($d);
+        }
+        return $this->getL3TransitDetails($d);
+    }
+
+    public function getL2TransitDetails(object $d)
+    {
+        return [
+            "Type" => "Layer 2",
+            "LVC ID" => $this->lvc_id . " (" . $this->lvc_name . ")",
+            "C_Tag" => $this->lvc_c_tag,
+            "CPE VLAN" => $d->vlan_tagging ?? "N/A",
+        ];
+    }
+
+    public function getL3TransitDetails(object $d): array
+    {
         $retarr = [
             "Username" => $d->ppoe_username,
             "Password" => $d->ppoe_password,

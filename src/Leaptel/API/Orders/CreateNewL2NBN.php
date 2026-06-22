@@ -2,29 +2,24 @@
 
 namespace Leaptel\API\Orders;
 
-use Leaptel\API\Response\CustomerResponse;
-
 /** @package Leaptel\API */
 class CreateNewL2NBN extends CreateNewNBN
 {
-    public function __construct(CustomerResponse $cust, string $lvc_id = "44", string $lvc_c_tag = "0")
+    public function __construct(string $custid)
     {
-        parent::__construct($cust);
+        parent::__construct($custid);
         $this->order->layer_2 = "yes";
-        $this->order->lvc_id = $lvc_id;
-        $this->order->lvc_c_tag = $lvc_c_tag;
     }
 
-    /**
-     * Update the C tag if it was created incorrectly
-     *
-     * @param string $lvc_c_tag
-     * @return CreateNewL2NBN
-     */
-    public function updateL2IDs(string $lvc_id, string $lvc_c_tag): CreateNewL2NBN
+    public function setSTag(string $stag)
     {
-        $this->order->lvc_id = $lvc_id;
-        $this->order->lvc_c_tag = $lvc_c_tag;
+        $this->order->lvc_id = $stag;
+        return $this;
+    }
+
+    public function setCTag(string $ctag)
+    {
+        $this->order->lvc_c_tag = $ctag;
         return $this;
     }
 

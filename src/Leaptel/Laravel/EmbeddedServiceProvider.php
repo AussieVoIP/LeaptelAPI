@@ -3,6 +3,9 @@
 namespace Leaptel\Laravel;
 
 use Leaptel\Commands\CleanupServicesCommand;
+use Leaptel\Commands\Ctags;
+use Leaptel\Commands\LVCAdd;
+use Leaptel\Commands\LVCModify;
 use Leaptel\Commands\TestCommand;
 
 class EmbeddedServiceProvider extends \Illuminate\Support\ServiceProvider
@@ -17,6 +20,9 @@ class EmbeddedServiceProvider extends \Illuminate\Support\ServiceProvider
             $this->commands([
                 TestCommand::class,
                 CleanupServicesCommand::class,
+                LVCAdd::class,
+                LVCModify::class,
+                Ctags::class,
             ]);
         }
         $this->loadMigrationsFrom(__DIR__ . "/migrations");

@@ -114,6 +114,20 @@ class APIBase
         return $results;
     }
 
+    public function getRawResponse(): array
+    {
+        $c = $this->getGuzClient();
+        $params = $this->getGuzParams();
+        $retarr = [
+            "url" => $this->getFullUrl(),
+            "params" => $params,
+        ];
+        $resp = $c->request('GET', $this->getFullUrl(), $params);
+        $retarr['code'] = $resp->getStatusCode();
+        $retarr['body'] = (string) $resp->getBody();
+        return $retarr;
+    }
+
     protected function getMultipleNotPaginated(bool $refresh = false, int $loopcount = 0): array
     {
         if ($loopcount > $this->retrycount) {

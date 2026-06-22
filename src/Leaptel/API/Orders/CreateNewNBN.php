@@ -3,6 +3,7 @@
 namespace Leaptel\API\Orders;
 
 use App\Models\Product;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
 use Leaptel\API\APIBase;
@@ -138,7 +139,7 @@ class CreateNewNBN extends APIBase
     public function usingProduct(Product $product): CreateNewNBN
     {
         $this->product = $product;
-        $this->order->product_id = $this->product->product_id;
+        // $this->order->product_id = $this->product->product_id;
         $this->order->plan_id = $this->product->plan_id;
         return $this;
     }
@@ -151,7 +152,9 @@ class CreateNewNBN extends APIBase
      */
     public function setOrderAfter(DateTimeInterface $oa): CreateNewNBN
     {
-        $f = $oa->format('Y-m-d\TH:i:s');
+        /** @var DateTimeImmutable $oa */
+        $melb = $oa->setTimezone(new \DateTimeZone('Australia/Melbourne'));
+        $f = $melb->format('Y-m-d\TH:i:s');
         $this->order->order_after = $f;
         return $this;
     }
@@ -181,7 +184,7 @@ class CreateNewNBN extends APIBase
         $c = $this->getGuzClient();
         $params = $this->getGuzParams();
         $params['debug'] = true;
-        var_dump($params);
+        var_dump($params['form_params']);
         $resp = $c->request('POST', $this->getFullUrl(), $params);
         $body = json_decode((string) $resp->getBody(), true);
         var_dump($body);
