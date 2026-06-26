@@ -10,13 +10,17 @@ class Addressify
     public function __invoke(Request $req)
     {
         $query = $req->input("q");
+        $withraw = !empty($req->input("withraw"));
+        $refresh = !empty($req->input("refresh"));
         $a = new AutoComplete($query);
-        $raw = $a->go(true);
+        $raw = $a->go($refresh);
         $resp = [
             "query" => $query,
             "result" => [],
-            "raw" => $raw,
         ];
+        if ($withraw) {
+            $resp['raw'] = $raw;
+        }
         foreach ($raw as $name => $loc) {
             $resp["result"][] = [
                 "desc" => $name,

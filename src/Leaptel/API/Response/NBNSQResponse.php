@@ -30,6 +30,9 @@ class NBNSQResponse extends ResponseBase
         $sr = $row['output']['siteRestriction'][0];
         $this->npis = new NPISServiceQual($sr);
         $records = $row['NBNPortRecord'] ?? [];
+        if (!$records) {
+            $records = [];
+        }
         $this->ntd_ports = [];
         foreach ($records as $r) {
             $pr = new NBNPortRecord($r);
@@ -168,18 +171,18 @@ class NBNSQResponse extends ResponseBase
     /**
      * Bandwidth Upstream
      *
-     * @var int
+     * @var string
      * @OA\Property()
      */
-    public int $ntd_bandwidth_upstream;
+    public string $ntd_bandwidth_upstream;
 
     /**
      * Bandwidth Downstream
      *
-     * @var int
+     * @var string
      * @OA\Property()
      */
-    public int $ntd_bandwidth_downstream;
+    public string $ntd_bandwidth_downstream;
 
     /**
      * Access Type

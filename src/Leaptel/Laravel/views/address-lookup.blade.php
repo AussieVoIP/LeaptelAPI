@@ -54,7 +54,10 @@
             misclick.classList.add('hidden');
             return;
         }
-        url = "{{ route('address') }}?q=" + v;
+        p = new URLSearchParams({
+            q: v
+        });
+        url = "{{ route('address') }}?" + p.toString();
         // console.log("I want to go to " + url);
         fetch(url, {
             credentials: "include"

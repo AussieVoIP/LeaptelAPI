@@ -2,6 +2,7 @@
 
 namespace Leaptel\Laravel;
 
+use Illuminate\Support\Facades\Route;
 use Leaptel\Commands\CleanupServicesCommand;
 use Leaptel\Commands\Ctags;
 use Leaptel\Commands\LVCAdd;
@@ -28,7 +29,10 @@ class EmbeddedServiceProvider extends \Illuminate\Support\ServiceProvider
             ]);
             $this->loadMigrationsFrom(__DIR__ . "/migrations");
         }
-        $this->loadRoutesFrom(__DIR__ . "/routes/leaptel.php");
+        // We need to wrap this in the web middleware so it knows to auth.
+        Route::middleware('web')->group(function () {
+            $this->loadRoutesFrom(__DIR__ . "/routes/leaptel.php");
+        });
         $this->loadViewsFrom(__DIR__ . "/views", "leaptel");
     }
 }
