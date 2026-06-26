@@ -13,7 +13,7 @@ class ProcessWebhook
 
     public function result()
     {
-        // You want to change this to something you control. It should send emails/smss/whatever
+        // You want to change this to something you control. It should send emails/sms/whatever
         if (!class_exists(IncomingWebhook::class)) {
             throw new \Exception("This needs to be implemented");
         }

@@ -125,4 +125,27 @@ class Webhook extends Model
         $ret = str_replace("\n", " ", $this->payload['information']);
         return $ret;
     }
+
+    /**
+     * This should be used by the ProcessWebhook tool that you provide
+     *
+     * @return array
+     */
+    public function getDeliveryDetails(): array
+    {
+        $ret = [
+            "sendsms" => false,
+            "sms" => [
+                "smsfrom" => "NBN.info",
+                "smsto" => null,
+            ],
+            "sendemail" => false,
+            "email" => [
+                "emailfrom" => "info@example.com",
+                "emailto" => null,
+                "emailview" => "defaultemail",
+            ],
+        ];
+        return $ret;
+    }
 }

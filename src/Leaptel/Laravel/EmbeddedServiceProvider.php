@@ -28,5 +28,7 @@ class EmbeddedServiceProvider extends \Illuminate\Support\ServiceProvider
             ]);
             $this->loadMigrationsFrom(__DIR__ . "/migrations");
         }
+        $this->loadRoutesFrom(__DIR__ . "/routes/leaptel.php");
+        $this->loadViewsFrom(__DIR__ . "/views", "leaptel");
     }
 }

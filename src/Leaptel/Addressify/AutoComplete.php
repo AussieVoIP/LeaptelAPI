@@ -11,7 +11,6 @@ class AutoComplete extends Core
 {
     public function __construct(
         public string $req,
-        public string $state = "",
     ) {}
 
     /**
@@ -27,11 +26,8 @@ class AutoComplete extends Core
         if ($refresh) {
             LocationLookup::where(["source" => $req])->delete();
         }
-        if ($this->state) {
-            $cache = LocationLookup::where(["source" => $req, "state" => strtoupper($this->state)])->get();
-        } else {
-            $cache = LocationLookup::where(["source" => $req])->get();
-        }
+
+        $cache = LocationLookup::where(["source" => $req])->get();
         $retarr = [];
 
         // Nothing cached, recreate
@@ -42,10 +38,8 @@ class AutoComplete extends Core
                 "term" => $req,
                 "address_types" => 2,
                 "info" => "true",
+                "close_matches" => "true",
             ];
-            if ($this->state) {
-                $query["state"] = $this->state;
-            }
             $url = $secrets['addressifyurl'] . '/address/autocomplete';
             $c = $this->getGuzClient();
             $resp = $c->request('GET', $url, ['query' => $query, 'debug' => $this->debug]);
