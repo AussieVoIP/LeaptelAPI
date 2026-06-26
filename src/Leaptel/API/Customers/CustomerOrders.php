@@ -4,7 +4,6 @@ namespace Leaptel\API\Customers;
 
 use Leaptel\API\APIBase;
 use Leaptel\API\Response\CustomerOrder;
-use Leaptel\Models\QueryCache;
 
 /** @package Leaptel\API */
 class CustomerOrders extends APIBase

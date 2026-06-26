@@ -3,9 +3,7 @@
 namespace Leaptel\Http;
 
 use Illuminate\Http\Request;
-use Leaptel\Actions\ProcessWebhook;
 use Leaptel\Addressify\AutoComplete;
-use Leaptel\Models\Webhook;
 
 class Addressify
 {

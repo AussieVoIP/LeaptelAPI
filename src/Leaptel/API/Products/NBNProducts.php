@@ -4,7 +4,6 @@ namespace Leaptel\API\Products;
 
 use Leaptel\API\APIBase;
 use Leaptel\API\Response\WholesalerProduct;
-use Leaptel\Models\QueryCache;
 
 /** @package Leaptel\API */
 class NBNProducts extends APIBase

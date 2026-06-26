@@ -1,6 +1,7 @@
 {{--
 
   Example of how this is used:
+
 <form method="POST" action="{{ route('findloc') }}">
 <input type="hidden" name="addrhash" id="addrhash">
 <input type="hidden" name="prevquery" id="prevquery">

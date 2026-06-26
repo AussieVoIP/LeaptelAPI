@@ -3,14 +3,10 @@
 namespace Leaptel\API\Orders;
 
 use App\Models\Product;
-use DateTimeImmutable;
-use DateTimeInterface;
-use Exception;
 use Leaptel\API\APIBase;
 use Leaptel\API\Components\NBNPortRecord;
 use Leaptel\API\Components\OrderContact;
 use Leaptel\API\Request\OrderRequest;
-use Leaptel\API\Response\CustomerResponse;
 use Leaptel\API\Response\NBNSQResponse;
 use Leaptel\API\Response\WholesalerProduct;
 use Override;
@@ -100,7 +96,7 @@ class CreateNewNBN extends APIBase
      *
      * @param string $portname
      * @return CreateNewNBN
-     * @throws Exception
+     * @throws \Exception
      */
     public function updateSelectedPortByName(string $portname): CreateNewNBN
     {
@@ -147,12 +143,12 @@ class CreateNewNBN extends APIBase
     /**
      * Schedule this order for the future
      *
-     * @param DateTimeInterface $oa
+     * @param \DateTimeInterface $oa
      * @return CreateNewNBN
      */
-    public function setOrderAfter(DateTimeInterface $oa): CreateNewNBN
+    public function setOrderAfter(\DateTimeInterface $oa): CreateNewNBN
     {
-        /** @var DateTimeImmutable $oa */
+        /** @var \DateTimeImmutable $oa */
         $melb = $oa->setTimezone(new \DateTimeZone('Australia/Melbourne'));
         $f = $melb->format('Y-m-d\TH:i:s');
         $this->order->order_after = $f;

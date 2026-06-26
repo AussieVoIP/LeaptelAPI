@@ -3,10 +3,7 @@
 namespace Leaptel\Commands;
 
 use Illuminate\Console\Command;
-use Leaptel\Actions\CleanupServices;
-use Leaptel\Models\CTagsMap;
 use Leaptel\Models\NBNLVC;
-use Leaptel\Models\NBNService;
 
 class LVCModify extends Command
 {
