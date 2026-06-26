@@ -37,8 +37,10 @@
     function revertInput() {
         const addrlookup = document.getElementById('addrlookup');
         const misclick = document.getElementById('misclick');
+        const lookups = document.getElementById('lookups');
         addrlookup.value = misclick.getAttribute('data-origquery');
         misclick.classList.add('hidden');
+        lookups.classList.remove('hidden');
     }
 
 
@@ -75,7 +77,7 @@
                 } else {
                     result.forEach(result => {
                         var li = document.createElement('li');
-                        li.classList.add('addressli');
+                        li.classList.add('cursor-pointer');
                         li.onclick = addressClick;
                         li.appendChild(document.createTextNode(result.desc));
                         li.setAttribute('data-fulldesc', result.fulldesc);
@@ -95,9 +97,11 @@
 
     function addressClick(e) {
         const misclick = document.getElementById('misclick');
+        const lookups = document.getElementById('lookups');
         t = e.target;
         misclick.classList.remove('hidden');
         misclick.setAttribute("data-origquery", t.getAttribute("data-origquery"));
+        lookups.classList.add('hidden');
         val = t.getAttribute('data-fulldesc');
         // console.log("Clicked", t, val);
         document.getElementById('addrlookup').value = t.getAttribute('data-fulldesc');

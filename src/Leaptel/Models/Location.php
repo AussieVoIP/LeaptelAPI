@@ -4,6 +4,7 @@ namespace Leaptel\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Leaptel\Addressify\Objects\AddressInfo;
+use Leaptel\API\Request\SQ;
 
 class Location extends Model
 {
@@ -77,10 +78,10 @@ class Location extends Model
             }
         }
         if ($m->wasRecentlyCreated) {
-            print "Model created - " . json_encode($m) . "\n";
+            // print "Model created - " . json_encode($m) . "\n";
         }
         if ($changed) {
-            print "Model changed - " . json_encode($m) . "\n";
+            // print "Model changed - " . json_encode($m) . "\n";
             $m->save();
         }
         return $m;
@@ -92,5 +93,26 @@ class Location extends Model
             throw new \Exception("No AddressInfo object found\n");
         }
         return unserialize($this->details['aiobj']);
+    }
+
+    public function getServiceQualObject(): SQ
+    {
+        $sq = new SQ();
+        $params = [
+            "lot_no" => "lot_no",
+            "unit" => "unit",
+            "level" => "level",
+            "street_number" => "street_number",
+            "street_name" => "street_name",
+            "suburb" => "suburb",
+            "state" => "state",
+            "postcode" => "postcode",
+        ];
+        foreach ($params as $local => $sqval) {
+            if ($this->{$local}) {
+                $sq->{$sqval} = $this->{$local};
+            }
+        }
+        return $sq;
     }
 }

@@ -13,6 +13,10 @@ class NPISServiceQual extends SchemaBase
 
     public function getSupportingProduct(string $portid)
     {
+
+        if (!$this->supportingProduct) {
+            return false;
+        }
         foreach ($this->supportingProduct as $row) {
             foreach ($row['resourceRef'] as $rr) {
                 if (preg_match("/\['$portid'\]/", $rr)) {

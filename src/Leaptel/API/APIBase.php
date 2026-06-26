@@ -301,7 +301,7 @@ class APIBase
 
             QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($obj)]);
         }
-        return $obj;
+        return $this->filterResults([$obj])[0];
     }
 
     protected function postSingle(bool $refresh = false, $validator = null, int $loopcount = 0): mixed
@@ -354,6 +354,6 @@ class APIBase
 
             QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($obj)]);
         }
-        return $obj;
+        return $this->filterResults([$obj])[0];
     }
 }

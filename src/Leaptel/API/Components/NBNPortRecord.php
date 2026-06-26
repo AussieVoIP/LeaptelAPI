@@ -2,13 +2,11 @@
 
 namespace Leaptel\API\Components;
 
-use Leaptel\API\Response\NBNSQResponse;
 use Leaptel\API\Schemas\SchemaBase;
 use Leaptel\Models\NBNService;
-use Override;
 
 /**
- * @OA\Schema(description="NBN Port Record, from Service Qualification", type="object")
+ * @OA\Schema(description="NBN Port Record, from Service Qualification and AVC Validation", type="object")
  * @package Leaptel
  */
 class NBNPortRecord extends SchemaBase
@@ -116,6 +114,24 @@ class NBNPortRecord extends SchemaBase
      * @OA\Property()
      */
     public string $location_id = "";
+
+    /**
+     * Service ID (AVC) Match (only in AVC Check) - 'yes' or 'no'
+     *
+     * @var string
+     * @OA\Property()
+     */
+    public string $ServiceIDMatch = "";
+
+    /**
+     * AVC, if known. Note that this is set in the Location\CheckAVC filter
+     * function in __construct. It will not be set anywhere else, so don't try to
+     * use it
+     *
+     * @var string
+     * @OA\Property()
+     */
+    public string $avc_id = "";
 
     public ?array $PortDetails = null;
 
