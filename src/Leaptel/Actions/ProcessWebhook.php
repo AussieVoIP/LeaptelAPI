@@ -2,16 +2,23 @@
 
 namespace Leaptel\Actions;
 
-use Leaptel\Models\Webhooks;
+use App\Actions\IncomingWebhook;
+use Leaptel\Models\Webhook;
 
 class ProcessWebhook
 {
     public function __construct(
-        public Webhooks $wh
+        public Webhook $wh
     ) {}
 
     public function result()
     {
-        return response()->json(["status" => "complete", "id" => $this->wh->id]);
+        // You want to change this to something you control. It should send emails/smss/whatever
+        if (!class_exists(IncomingWebhook::class)) {
+            throw new \Exception("This needs to be implemented");
+        }
+        $a = new IncomingWebhook($this->wh);
+        $result = $a->process();
+        return response()->json(["status" => "complete", "id" => $this->wh->id, "result" => $result]);
     }
 }

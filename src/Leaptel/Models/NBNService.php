@@ -89,10 +89,13 @@ class NBNService extends Model
         return $details;
     }
 
-    public function getDisplayName(bool $withsid = true): string
+    public function getDisplayName(bool $withsid = true, bool $withstate = true): string
     {
         $r = $this->getRawObj();
-        $displayname = $r->raw_address . " (" . $r->state . ")";
+        $displayname = trim($r->raw_address);
+        if ($withstate) {
+            $displayname .= " (" . $r->state . ")";
+        }
         if ($withsid) {
             return $this->service_id . " - $displayname";
         }
@@ -146,6 +149,15 @@ class NBNService extends Model
         return $retarr;
     }
 
+    public function getAccessType(): string
+    {
+        $d = $this->getAllDetailsObj();
+        if (empty($d->access_technology)) {
+            return "";
+        }
+        return $d->access_type;
+    }
+
     public function getTransitDetails(): array
     {
         $d = $this->getAllDetailsObj();
@@ -183,5 +195,11 @@ class NBNService extends Model
             $retarr['IPv6 Alloc'] = $d->staticipv6;
         }
         return $retarr;
+    }
+
+    public function getUsername(): string
+    {
+        $td = $this->getTransitDetails();
+        return $td['Username'] ?? "";
     }
 }
