@@ -3,6 +3,7 @@
 namespace Leaptel\API;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 use Leaptel\API\Response\GenericResponse;
 use Leaptel\Leaptel;
 use Leaptel\Models\QueryCache;
@@ -304,10 +305,16 @@ class APIBase
         return $this->filterResults([$obj])[0];
     }
 
-    protected function postSingle(bool $refresh = false, $validator = null, int $loopcount = 0): mixed
+    protected function postSingle(bool $refresh = false, $validator = null, int $loopcount = 0, ?Response $err = null): mixed
     {
+
         if ($loopcount > $this->retrycount) {
-            throw new \Exception("Aborting " . $this->getFullUrl() . " after $loopcount attempts");
+            if ($err) {
+                $body = (string) $err->getBody();
+            } else {
+                $body = "";
+            }
+            throw new \Exception("Aborting " . $this->getFullUrl() . " after $loopcount attempts $body");
         }
         $params = $this->getGuzParams();
         if ($refresh) {
@@ -333,7 +340,7 @@ class APIBase
                     print $resp->getBody() . "\n";
                     print "Retrying\n";
                 }
-                return $this->postSingle(false, $validator, $loopcount);
+                return $this->postSingle(false, $validator, $loopcount, $resp);
             }
 
             if (is_callable($validator)) {
