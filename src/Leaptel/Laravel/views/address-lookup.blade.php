@@ -5,6 +5,7 @@
 <form method="POST" action="{{ route('findloc') }}">
 <input type="hidden" name="addrhash" id="addrhash">
 <input type="hidden" name="prevquery" id="prevquery">
+<input type="hidden" name="querysource" id="querysource">
 @csrf
 <div class='p-1'>
     <x-input-label for="addrlookup" :value="__('Find Location ID from Address')" />
@@ -18,7 +19,7 @@
     </x-secondary-button>
 </div>
 </form>
-<div id="lookups" class='absolute ml-5 p-5 bg-gray-500 w-1/3 hidden'>
+<div id="lookups" class='absolute ml-5 p-5 bg-gray-500 w-1/2 hidden'>
     <ul id="lookupul"></ul>
 </div>
 
@@ -81,12 +82,20 @@
                 } else {
                     result.forEach(result => {
                         var li = document.createElement('li');
-                        li.classList.add('cursor-pointer');
-                        li.onclick = addressClick;
-                        li.appendChild(document.createTextNode(result.desc));
-                        li.setAttribute('data-fulldesc', result.fulldesc);
-                        li.setAttribute('data-hash', result.hash);
-                        li.setAttribute('data-origquery', data.query);
+                        // li.appendChild(document.createTextNode(result.desc));
+                        if (!result.display) {
+                            li.appendChild(document.createTextNode(result.desc));
+                        } else {
+                            li.innerHTML = result.display;
+                        }
+                        if (result.valid) {
+                            li.classList.add('cursor-pointer');
+                            li.onclick = addressClick;
+                            li.setAttribute('data-fulldesc', result.fulldesc);
+                            li.setAttribute('data-hash', result.hash);
+                            li.setAttribute('data-origquery', data.query);
+                            li.setAttribute('data-querysource', data.source);
+                        }
                         ul.appendChild(li);
                     });
                 }
@@ -102,15 +111,19 @@
     function addressClick(e) {
         const misclick = document.getElementById('misclick');
         const lookups = document.getElementById('lookups');
-        t = e.target;
         misclick.classList.remove('hidden');
-        misclick.setAttribute("data-origquery", t.getAttribute("data-origquery"));
         lookups.classList.add('hidden');
+
+        // This allows the user to click on anything inside the li, and the browser
+        // will find the closest
+        t = e.target.closest("li");
+        misclick.setAttribute("data-origquery", t.getAttribute("data-origquery"));
         val = t.getAttribute('data-fulldesc');
         // console.log("Clicked", t, val);
         document.getElementById('addrlookup').value = t.getAttribute('data-fulldesc');
         document.getElementById('addrhash').value = t.getAttribute("data-hash");
         document.getElementById('prevquery').value = t.getAttribute("data-origquery");
+        document.getElementById('querysource').value = t.getAttribute("data-querysource");
     }
 
     // Annoying Async handlers

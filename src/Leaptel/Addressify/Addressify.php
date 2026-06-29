@@ -7,7 +7,7 @@ use Leaptel\Addressify\Objects\AddressInfo;
 use Leaptel\Models\Location;
 use Leaptel\Models\LocationLookup;
 
-class AutoComplete extends Core
+class Addressify extends Core
 {
     public function __construct(
         public string $req,

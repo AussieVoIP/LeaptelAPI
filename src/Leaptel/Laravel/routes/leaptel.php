@@ -1,6 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Leaptel\Http\Addressify;
+use Leaptel\Http\AddressLookup;
 
-Route::get('/leaptel/address', Addressify::class)->middleware(['auth', 'verified'])->name('address');
+Route::get('/leaptel/address', AddressLookup::class)->middleware(['auth', 'verified'])->name('address');

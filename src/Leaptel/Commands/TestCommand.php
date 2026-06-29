@@ -3,13 +3,14 @@
 namespace Leaptel\Commands;
 
 use Illuminate\Console\Command;
-use Leaptel\Addressify\AutoComplete;
+use Leaptel\Addressify\Addressify;
 use Leaptel\API\Customers;
 use Leaptel\API\Customers\GetAllCustomers;
 use Leaptel\API\Location\GetServiceQual;
 use Leaptel\API\Request\SQ;
 use Leaptel\API\ServiceAssurance\GetServiceAssuranceTests;
 use Leaptel\Models\Location;
+use Leaptel\NBNCo\Places;
 
 class TestCommand extends Command
 {
@@ -34,6 +35,12 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        $p = Places::getPlacesDetail("LOC000001785734");
+        var_dump($p);
+        exit;
+        $q = Places::getAutoComplete("1 grayson st, west glad");
+        var_dump($q);
+        exit;
         $cust = (new GetAllCustomers())->go();
         var_dump($cust);
         exit;
@@ -45,7 +52,7 @@ class TestCommand extends Command
             "postcode" => "4680",
         ];
 
-        $ac = new AutoComplete("1 Grayson St", "QLD");
+        $ac = new Addressify("1 Grayson St", "QLD");
         var_dump($ac->go());
         exit;
         var_dump(Location::genPriKey($location));
