@@ -10,7 +10,7 @@ use Leaptel\NBNCo\Objects\Suggestion;
 
 /**
  * Taken from https://github.com/LukePrior/nbn-upgrade-map/blob/main/code/nbn.py
- * which manually asks places.nbnco.net.au for the definative lookup results.
+ * which manually asks places.nbnco.net.au for the authoritive lookup results.
  *
  * @package Leaptel\NBNCo
  */

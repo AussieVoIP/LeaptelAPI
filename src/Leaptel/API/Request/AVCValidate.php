@@ -10,9 +10,8 @@ use Leaptel\API\Schemas\RequestBase;
  */
 class AVCValidate extends RequestBase
 {
-    // This API call REALLY needs a ntd_port param, because wow it's slow. I'm guessing
-    // it iterates over every port in the backend. It took 6 seconds to run the first time
-    // over a location.
+    // Sadly, there isn't a ntd_port param available from nbnco. So this returns all
+    // ports with a match flag, if you've given it the correct avc.
 
     /**
      * Location ID
