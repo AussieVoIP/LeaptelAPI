@@ -8,7 +8,7 @@ use Leaptel\API\Schemas\ResponseBase;
  * @OA\Schema(description="A usable Service Assurance Test", type="object")
  * @package Leaptel
  */
-class ServiceAssuranceTest extends ResponseBase
+class ServiceAssuranceTestType extends ResponseBase
 {
     /**
      * Test Name

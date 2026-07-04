@@ -3,19 +3,18 @@
 namespace Leaptel\API\ServiceAssurance;
 
 use Leaptel\API\APIBase;
-use Leaptel\API\Response\ServiceAssuranceTest;
+use Leaptel\API\Response\ServiceAssuranceTestType;
 
-class GetServiceAssuranceTests extends APIBase
+class ServiceAssuranceTestTypes extends APIBase
 {
     protected string $path = '/service-assurance-tests';
-    protected string $query = '?carrier=nbn&access_technology=ERROR';
-    protected string $retclass = ServiceAssuranceTest::class;
+    protected string $retclass = ServiceAssuranceTestType::class;
     protected string $indexby = "abbreviation";
     protected int $cacheforsecs = 86400;
 
     /**
      * @param bool $refresh
-     * @return ServiceAssuranceTest[]
+     * @return ServiceAssuranceTestType[]
      */
     public function go(bool $refresh = false)
     {
@@ -26,7 +25,7 @@ class GetServiceAssuranceTests extends APIBase
             "FTTP" => $this->getTestType("FTTP", $refresh),
             "FW" => $this->getTestType("FW", $refresh),
             "HFC" => $this->getTestType("HFC", $refresh),
-            "SATELLITE" => $this->getTestType("SATELLITE", $refresh),
+            // "SATELLITE" => $this->getTestType("SATELLITE", $refresh),
         ];
         foreach ($results as $type => $objs) {
             foreach ($objs as $o) {

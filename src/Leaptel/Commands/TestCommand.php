@@ -8,7 +8,9 @@ use Leaptel\API\Customers;
 use Leaptel\API\Customers\GetAllCustomers;
 use Leaptel\API\Location\GetServiceQual;
 use Leaptel\API\Request\SQ;
-use Leaptel\API\ServiceAssurance\GetServiceAssuranceTests;
+use Leaptel\API\Service\GetServiceDetails;
+use Leaptel\API\ServiceAssurance\ServiceAssuranceHistory;
+use Leaptel\API\ServiceAssurance\ServiceAssuranceTestTypes;
 use Leaptel\Models\Location;
 use Leaptel\Models\Webhook;
 use Leaptel\NBNCo\Places;
@@ -37,9 +39,20 @@ class TestCommand extends Command
      */
     public function handle()
     {
-        $t = new GetServiceAssuranceTests();
-        $tests = $t->go();
-        var_dump(array_keys($tests));
+        $me = "219655";
+        $s = (new GetServiceDetails($me))->go();
+        var_dump($s);
+        exit;
+        $c = (new GetAllCustomers())->go();
+        var_dump($c);
+        exit;
+        $t = (new ServiceAssuranceTestTypes())->go();
+        var_dump($t);
+        exit;
+        $h = (new ServiceAssuranceHistory($me))->go();
+        print json_encode($h) . "\n";
+        exit;
+        var_dump($h);
         exit;
         var_dump($t->go(true));
     }

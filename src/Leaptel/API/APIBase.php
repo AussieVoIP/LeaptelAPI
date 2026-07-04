@@ -93,6 +93,8 @@ class APIBase
         if ($formparams) {
             $params['form_params'] = $formparams;
         }
+        // Allow queries to be cached, too!
+        $params['querycache'] = $this->query;
         return $params;
     }
 
@@ -138,14 +140,20 @@ class APIBase
         if ($refresh) {
             QueryCache::purgeCachedUrl($this->getUrl());
         }
+
         // $params['debug'] = true;
-        $qc = QueryCache::getCachedResult($this->getFullUrl(), $params, $this->cacheforsecs);
+        $qc = QueryCache::getCachedResult($this->getUrl(), $params, $this->cacheforsecs);
+        $body = null;
         if ($qc) {
             if ($this->showurl) {
                 print "Using cached request: " . $this->getFullUrl() . "\n";
             }
-            $retarr = unserialize($qc['s']);
-        } else {
+            $respbody = $qc['respbody'] ?? null;
+            if ($respbody) {
+                $body = json_decode($respbody, true);
+            }
+        }
+        if (!$body) {
             if ($this->showurl) {
                 print $this->getFullUrl() . "\n";
             }
@@ -160,36 +168,37 @@ class APIBase
                 $loopcount++;
                 return $this->getMultipleNotPaginated(false, $loopcount);
             }
+            QueryCache::cacheResult($this->getUrl(), $params, ["respbody" => (string) $resp->getBody()]);
+        }
 
-            $retarr = [];
-            foreach ($body as $row) {
-                if (!$row) {
-                    if ($this->showurl) {
-                        print $resp->getBody() . "\n";
-                        print "Retrying\n";
-                    }
-                    $loopcount++;
-                    return $this->getMultipleNotPaginated(false, $loopcount);
+        $retarr = [];
+        foreach ($body as $row) {
+            if (!$row) {
+                if ($this->showurl) {
+                    print "WTF no row\n";
+                    var_dump($body);
+                    exit;
                 }
-                $obj = new $this->retclass($row);
-
-                if ($this->addtimestamp) {
-                    $obj[$this->addtimestamp] = time();
-                }
-
-                if ($this->indexby) {
-                    $key = $obj->{$this->indexby};
-                    if (!empty($retarr[$key])) {
-                        print "Original: " . json_encode($retarr[$key]) . "\n";
-                        print "New: " . json_encode($obj) . "\n";
-                        throw new \Exception("Bug - duplicate key $key found");
-                    }
-                    $retarr[$key] = $obj;
-                } else {
-                    $retarr[] = $obj;
-                }
+                $loopcount++;
+                return $this->getMultipleNotPaginated(false, $loopcount);
             }
-            QueryCache::cacheResult($this->getFullUrl(), $params, ["s" => serialize($retarr)]);
+            $obj = new $this->retclass($row);
+
+            if ($this->addtimestamp) {
+                $obj[$this->addtimestamp] = time();
+            }
+
+            if ($this->indexby) {
+                $key = $obj->{$this->indexby};
+                if (!empty($retarr[$key])) {
+                    print "Original: " . json_encode($retarr[$key]) . "\n";
+                    print "New: " . json_encode($obj) . "\n";
+                    throw new \Exception("Bug - duplicate key $key found");
+                }
+                $retarr[$key] = $obj;
+            } else {
+                $retarr[] = $obj;
+            }
         }
         return $this->filterResults($retarr);
     }
@@ -204,19 +213,23 @@ class APIBase
             QueryCache::purgeCachedUrl($this->getUrl());
         }
         // $params['debug'] = true;
+        $chunks = [];
         $qc = QueryCache::getCachedResult($this->getUrl(), $params, $this->cacheforsecs);
         if ($qc) {
             if ($this->showurl) {
                 print "Using cached request: " . $this->getUrl() . "\n";
             }
-            $retarr = unserialize($qc['s']);
-        } else {
+            $chunksjson = $qc['chunksjson'] ?? null;
+            if ($chunksjson) {
+                $chunks = json_decode($chunksjson, true);
+            }
+        }
+        if (!$chunks) {
             if ($this->showurl) {
                 print "Requesting " . $this->getUrl() . "\n";
             }
             $c = $this->getGuzClient();
             $pagination = ["next_page" => 1];
-            $retarr = [];
             while ($pagination["next_page"] !== null) {
                 $this->query = "?page=" . $pagination["next_page"];
                 $resp = $c->request('GET', $this->getFullUrl(), $params);
@@ -227,27 +240,31 @@ class APIBase
                         print "Retrying " . $this->showurl . " - attempt $loopcount\n";
                     }
                     return $this->getMultiplePaginated($bodykey, $paginationkey, false, $loopcount);
+                } else {
+                    foreach ($body[$bodykey] as $c) {
+                        if ($this->addtimestamp) {
+                            $c[$this->addtimestamp] = time();
+                        }
+                        $chunks[] = $c;
+                    }
                 }
                 $pagination = $body[$paginationkey];
-                foreach ($body[$bodykey] as $row) {
-                    $obj = new $this->retclass($row);
-
-                    if ($this->addtimestamp) {
-                        $obj[$this->addtimestamp] = time();
-                    }
-
-                    if ($this->indexby) {
-                        $key = $obj->{$this->indexby};
-                        if (!empty($retarr[$key])) {
-                            throw new \Exception("Bug - duplicate key $key found");
-                        }
-                        $retarr[$key] = $obj;
-                    } else {
-                        $retarr[] = $obj;
-                    }
-                }
             }
-            QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($retarr)]);
+            QueryCache::cacheResult($this->getUrl(), $params, ["chunksjson" => json_encode($chunks)]);
+        }
+        $retarr = [];
+        foreach ($chunks as $row) {
+            $obj = new $this->retclass($row);
+
+            if ($this->indexby) {
+                $key = $obj->{$this->indexby};
+                if (!empty($retarr[$key])) {
+                    throw new \Exception("Bug - duplicate key $key found");
+                }
+                $retarr[$key] = $obj;
+            } else {
+                $retarr[] = $obj;
+            }
         }
         return $this->filterResults($retarr);
     }
@@ -262,13 +279,16 @@ class APIBase
             QueryCache::purgeCachedUrl($this->getUrl());
         }
         // $params['debug'] = true;
+        $body = null;
         $qc = QueryCache::getCachedResult($this->getUrl(), $params, $this->cacheforsecs);
         if ($qc) {
             if ($this->showurl) {
                 print "Using cached request: " . $this->getUrl() . "\n";
             }
-            $obj = unserialize($qc['s']);
-        } else {
+            $respbody = $qc['respbody'] ?? null;
+            $body = json_decode($respbody, true);
+        }
+        if (!$body) {
             if ($this->showurl) {
                 print $this->getUrl() . "\n";
             }
@@ -283,31 +303,35 @@ class APIBase
                 }
                 return $this->getSingle(false, $validator, $loopcount);
             }
-
-            if (is_callable($validator)) {
-                $body = $validator($body);
-            }
-            if ($body === false) {
-                return $this->getSingle(false, $validator, $loopcount);
-            }
-            if ($body === null) {
-                return null;
-            }
-
-            $obj = new $this->retclass($body);
-
-            if ($this->addtimestamp) {
-                $obj[$this->addtimestamp] = time();
-            }
-
-            QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($obj)]);
+            QueryCache::cacheResult($this->getUrl(), $params, ["respbody" => (string) $resp->getBody()]);
         }
+
+        $origbody = $body;
+        if (is_callable($validator)) {
+            $body = $validator($body);
+        }
+        // This really should never happen
+        if ($body === false) {
+            throw new \Exception("Body is now false, that is bad - was " . json_encode($origbody));
+            return $this->getSingle(false, $validator, $loopcount);
+        }
+
+        // Null back from Validator means don't return anything
+        if ($body === null) {
+            return null;
+        }
+
+        $obj = new $this->retclass($body);
+
+        if ($this->addtimestamp) {
+            $obj[$this->addtimestamp] = time();
+        }
+
         return $this->filterResults([$obj])[0];
     }
 
     protected function postSingle(bool $refresh = false, $validator = null, int $loopcount = 0, ?Response $err = null): mixed
     {
-
         if ($loopcount > $this->retrycount) {
             if ($err) {
                 $body = (string) $err->getBody();

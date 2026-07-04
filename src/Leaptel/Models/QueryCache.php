@@ -24,6 +24,17 @@ class QueryCache extends Model
         return $retarr;
     }
 
+    public static function purgeUrlStartingWith(string $url)
+    {
+        $found = false;
+        $o = self::where('baseurl', 'like', $url . '%')->get();
+        foreach ($o as $m) {
+            $m->delete();
+            $found = true;
+        }
+        return $found;
+    }
+
     public static function purgeCachedUrl(string $baseurl)
     {
         $o = self::where(['baseurl' => $baseurl])->first();

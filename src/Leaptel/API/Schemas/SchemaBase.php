@@ -13,8 +13,12 @@ abstract class SchemaBase implements
     Jsonable,
     JsonSerializable
 {
+    /** There is a reason for these all being public, but I can't remember it at the moment */
+    /** Map dest => source */
     public array $__mappings = [];
+    /** Skipvars by key  */
     public array $__skipvars = [];
+    /** Unimplemented */
     public array $__importvars = [];
 
     protected ?array $__original = null;
@@ -34,7 +38,6 @@ abstract class SchemaBase implements
                 }
             }
         } else {
-            // print "Mappings found!\n";
             // Keep a record of which settings have already been imported
             $processed = [];
             foreach ($this->__mappings as $dest => $src) {
@@ -52,7 +55,7 @@ abstract class SchemaBase implements
             }
             // Now, do we have a list of things to only import?
             if (!empty($this->__importvars)) {
-                print "Importvars provided\n";
+                print "Importvars provided - Unimplemented!\n";
                 exit;
             } else {
                 // Iterate through everything else in row, and see if we have a definition for it
@@ -68,9 +71,9 @@ abstract class SchemaBase implements
                     }
                 }
             }
-            if (method_exists($this, "finishImport")) {
-                $this->finishImport($row);
-            }
+        }
+        if (method_exists($this, "finishImport")) {
+            $this->finishImport($row);
         }
     }
 
