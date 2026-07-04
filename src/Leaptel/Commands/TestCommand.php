@@ -38,7 +38,7 @@ class TestCommand extends Command
     public function handle()
     {
         $t = new GetServiceAssuranceTests();
-        $tests = $t->go(true);
+        $tests = $t->go();
         var_dump(array_keys($tests));
         exit;
         var_dump($t->go(true));

@@ -139,15 +139,15 @@ class APIBase
             QueryCache::purgeCachedUrl($this->getUrl());
         }
         // $params['debug'] = true;
-        $qc = QueryCache::getCachedResult($this->getUrl(), $params, $this->cacheforsecs);
+        $qc = QueryCache::getCachedResult($this->getFullUrl(), $params, $this->cacheforsecs);
         if ($qc) {
             if ($this->showurl) {
-                print "Using cached request: " . $this->getUrl() . "\n";
+                print "Using cached request: " . $this->getFullUrl() . "\n";
             }
             $retarr = unserialize($qc['s']);
         } else {
             if ($this->showurl) {
-                print $this->getUrl() . "\n";
+                print $this->getFullUrl() . "\n";
             }
             $c = $this->getGuzClient();
             $resp = $c->request('GET', $this->getFullUrl(), $params);
@@ -189,7 +189,7 @@ class APIBase
                     $retarr[] = $obj;
                 }
             }
-            QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($retarr)]);
+            QueryCache::cacheResult($this->getFullUrl(), $params, ["s" => serialize($retarr)]);
         }
         return $this->filterResults($retarr);
     }
