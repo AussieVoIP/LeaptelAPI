@@ -40,6 +40,8 @@ class TestCommand extends Command
     public function handle()
     {
         $me = "219655";
+        $me = "201756";
+        /*
         $s = (new GetServiceDetails($me))->go();
         var_dump($s);
         exit;
@@ -49,7 +51,10 @@ class TestCommand extends Command
         $t = (new ServiceAssuranceTestTypes())->go();
         var_dump($t);
         exit;
+        */
         $h = (new ServiceAssuranceHistory($me))->go();
+        var_dump($h);
+        exit;
         print json_encode($h) . "\n";
         exit;
         var_dump($h);

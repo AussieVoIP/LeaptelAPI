@@ -24,7 +24,11 @@ class ServiceAssuranceResult extends ResponseBase
         $r = $row['test_result'] ?? null;
         if ($r) {
             $res = json_decode($r, true);
-            $this->test_result  = new SATestResult($res);
+            if (!is_array($res)) {
+                $this->test_error = $r;
+            } else {
+                $this->test_result  = new SATestResult($res);
+            }
         }
     }
 
@@ -91,6 +95,14 @@ class ServiceAssuranceResult extends ResponseBase
      * @OA\Property()
      */
     public ?SATestResult $test_result = null;
+
+    /**
+     * Test Error string from test_result
+     *
+     * @var null|SATestResult
+     * @OA\Property()
+     */
+    public string $test_error;
 
     /**
      * Requested at (Note is 'requested_dt')
