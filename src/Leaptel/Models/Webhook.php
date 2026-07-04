@@ -4,6 +4,7 @@ namespace Leaptel\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Ramsey\Uuid\Uuid;
 
 class Webhook extends Model
 {
@@ -14,14 +15,17 @@ class Webhook extends Model
         'headers' => 'array',
         'server' => 'array',
     ];
+    protected $primaryKey = 'uuid';
+    protected $keyType = 'string';
 
     protected ?NBNService $svc = null;
 
     public static function storeRequest(Request $req): array
     {
+        $uuid = Uuid::uuid7();
         $payload = $req->all();
         $retarr = [];
-        $wh = new self();
+        $wh = new self(["uuid" => $uuid]);
         $wh->payload = $payload;
         $wh->type = $payload['type'];
         $wh->ntype = $payload['notification_type'];
@@ -69,11 +73,30 @@ class Webhook extends Model
         return $this->svc;
     }
 
-    public function getCustDetails(): CustomerDetails
+    public function updateCustomerId(): ?bool
+    {
+        $svc = $this->getNbnService();
+        if (!$svc) {
+            return null;
+        }
+        $custid = $svc->customer_id;
+        if ($this->customer_id !== $custid) {
+            $this->customer_id = $custid;
+            $this->save();
+            return true;
+        }
+        return false;
+    }
+
+    public function getCustDetails(bool $throw = true): ?CustomerDetails
     {
         $n = $this->getNbnService();
         if (!$n) {
-            throw new \Exception("No nbn service found for " . $this->service_id);
+            if ($throw) {
+                throw new \Exception("No nbn service found for " . $this->service_id);
+            }
+            // else
+            return null;
         }
         $cd = CustomerDetails::getByCustID($n->customer_id);
         return $cd;
@@ -111,12 +134,13 @@ class Webhook extends Model
 
     public function getProductOrderBody(): string
     {
-        $ret = "Order " . $this->order_id . " " . $this->ntype;
+        // $ret = "Order " . $this->order_id . " " . $this->ntype;
+        $ret = $this->ntype;
         $event_time = $this->getEventTime();
         if ($event_time) {
             $ret .= " at $event_time";
         }
-        $ret .= "for service " . $this->service_id;
+        $ret .= " for service " . $this->service_id;
         return $ret;
     }
 
@@ -147,5 +171,39 @@ class Webhook extends Model
             ],
         ];
         return $ret;
+    }
+
+    public function getHumanHeader(): string
+    {
+        $event_time = $this->getEventTime();
+        if ($event_time) {
+            $ret = $event_time;
+        } else {
+            $ret = "(Err Timestamp)";
+        }
+        return $ret . " " . $this->type;
+    }
+
+    public function getHumanString()
+    {
+        $ret = $this->getBody() . " -- " . join("/", [$this->type, $this->ntype]);
+        return $ret;
+        $ret = $this->getBody() . " -- " . join("/", [$this->type, $this->ntype]);
+        $ret .= " event state " . $this->state . " at " . $this->getEventTime();
+        $ret .= " debug " . json_encode($this);
+        return $ret;
+    }
+
+    public function getDetailsUrl(): ?string
+    {
+        $sid = $this->service_id;
+        if (!$sid) {
+            return null;
+        }
+        $params = ["uuid" => $this->uuid];
+        if ($this->customer_id) {
+            $params["cid"] = $this->customer_id;
+        }
+        return route("eventdetails", $params);
     }
 }

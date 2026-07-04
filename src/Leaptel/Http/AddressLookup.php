@@ -30,15 +30,23 @@ class AddressLookup
             "source" => "places",
             "result" => [],
         ];
+        $style = "max-width: 30em";
+        $ttclass = "tooltip rounded bg-white p-1 shadow-lg";
         $suggestions = Places::getAutoComplete($query);
         foreach ($suggestions as $s) {
             $desc = $s->formattedAddress;
+            // Add tooltip for long ones
+            if (strlen($desc) > 50) {
+                $mid = "<div class='truncate has-tooltip' style='$style'><span class='$ttclass'>$desc</span>$desc</div>";
+            } else {
+                $mid = "<div class='truncate' style='$style'>$desc</div>";
+            }
             $valid = true;
             if ($s->source !== "lapi") {
-                $display = "<div class='flex justify-between'><div>$desc</div><div>Error (" . ucfirst($s->source) . ")</div></div>";
+                $display = "<div class='flex justify-between'>$mid<div>Error (" . ucfirst($s->source) . ")</div></div>";
                 $valid = false;
             } else {
-                $display = "<div class='flex justify-between'><div>$desc</div><div class='font-mono'>" . $s->id . "</div></div>";
+                $display = "<div class='flex justify-between'><div class='truncate' style='$style'>$desc</div><div class='font-mono'>" . $s->id . "</div></div>";
             }
             $row = [
                 "display" => $display,

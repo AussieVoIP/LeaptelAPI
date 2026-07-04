@@ -20,10 +20,27 @@
 </div>
 </form>
 <div id="lookups" class='absolute ml-5 p-5 bg-gray-500 w-1/2 hidden'>
-    <ul id="lookupul"></ul>
+    <ul></ul>
 </div>
 
 --}}
+<style>
+    .tooltip {
+        visibility: hidden;
+        position: absolute;
+    }
+
+    .has-tooltip:hover .tooltip {
+        visibility: visible;
+        z-index: 100;
+        outline-color: #6b7280;
+        outline-width: 1px;
+        outline-style: solid;
+        margin-left: 3em;
+        margin-top: -2em;
+    }
+</style>
+
 <script>
     function startAddressAutocomplete() {
         const i = document.getElementById('addrlookup');

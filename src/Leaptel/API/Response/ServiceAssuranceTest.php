@@ -57,4 +57,12 @@ class ServiceAssuranceTest extends ResponseBase
      * @OA\Property()
      */
     public string $description;
+
+    /**
+     * Technology Type (Added by GetServiceAssuranceTest)
+     *
+     * @var string
+     * @OA\Property()
+     */
+    public string $techtype;
 }

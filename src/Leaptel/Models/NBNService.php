@@ -5,11 +5,14 @@ namespace Leaptel\Models;
 use Illuminate\Database\Eloquent\Model;
 use Leaptel\API\Response\CustomerService;
 use Leaptel\API\Response\ServiceDetails;
+use Illuminate\Database\Eloquent\Collection;
 
 class NBNService extends Model
 {
     protected $table = 'service_details';
     protected $guarded = [];
+
+    private ?Collection $events = null;
 
     public static function updateDb(CustomerService $cs, ?ServiceDetails $sd = null): NBNService
     {
@@ -201,5 +204,13 @@ class NBNService extends Model
     {
         $td = $this->getTransitDetails();
         return $td['Username'] ?? "";
+    }
+
+    public function getEvents()
+    {
+        if ($this->events === null) {
+            $this->events = Webhook::where("service_id", $this->service_id)->get();
+        }
+        return $this->events;
     }
 }

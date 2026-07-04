@@ -14,7 +14,7 @@ class Ctags extends Command
      *
      * @var string
      */
-    protected $signature = 'leaptel:ctags {--lvcid=} {--action=} {--type=} {--custid=} {--start=} {--end=} {--count=}';
+    protected $signature = 'leaptel:ctags {--lvcid=} {--action=} {--eth=} {--type=} {--custid=} {--start=} {--end=} {--count=}';
 
     /**
      * The console command description.
@@ -29,6 +29,10 @@ class Ctags extends Command
     public function handle()
     {
         $action = $this->option("action");
+        if (!$action) {
+            print "Need an action - did you forget 'create'?\n";
+            exit;
+        }
         if ($action == "summary") {
             print "Summary of ctags\n";
             return;
@@ -65,16 +69,20 @@ class Ctags extends Command
         }
 
         if ($action == "create") {
+            $eth = $this->option('eth');
+            if (!$eth) {
+                throw new \Exception("Must provide eth name on l2 router");
+            }
             $type = $this->option("type");
             if (!$type) {
                 throw new \Exception("Provide a type - either ipoe or pppoe");
             }
-            print "Creating ctags between $start and $end\n";
+            print "Creating ctags between $start and $end using eth $eth\n";
             $pdo = RawDB::getPdo();
             if ($type == "ipoe") {
-                $q = $pdo->prepare("insert into ctagmaps (lvc_id, ctag, ipoe, customer_id) values (:lvcid, :ctag, 1, :custid)");
+                $q = $pdo->prepare("insert into ctagmaps (lvc_id, ctag, desc, ipoe, customer_id) values (:lvcid, :ctag, :desc, 1, :custid)");
             } elseif ($type == "pppoe") {
-                $q = $pdo->prepare("insert into ctagmaps (lvc_id, ctag, pppoe, customer_id) values (:lvcid, :ctag, 1, :custid)");
+                $q = $pdo->prepare("insert into ctagmaps (lvc_id, ctag, desc, pppoe, customer_id) values (:lvcid, :ctag, :desc, 1, :custid)");
             } else {
                 throw new \Exception("Unknown type $type");
             }
@@ -95,6 +103,7 @@ class Ctags extends Command
                     "lvcid" => $lvcid,
                     "ctag" => $ptr,
                     "custid" => $custid,
+                    "desc" => $eth,
                 ];
                 $q->execute($params);
                 $ptr++;
