@@ -43,6 +43,8 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        var_dump(ServiceAssuranceManager::updateIncompleteTests());
+        exit;
         $me = "219655";
         $testid = "254708";
         // Nuke any that exist
@@ -53,7 +55,6 @@ class TestCommand extends Command
         exit;
         var_dump($sa->getResult());
         exit;
-        // var_dump(ServiceAssuranceManager::updateIncompleteTests());
         /*
         $custs = (new GetAllCustomers())->go();
         foreach ($custs as $c) {

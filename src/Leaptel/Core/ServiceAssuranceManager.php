@@ -85,7 +85,7 @@ class ServiceAssuranceManager
     public static function updateIncompleteTests(): Collection
     {
         $incomplete = new Collection();
-        $tests = ServiceAssuranceModel::where('request_status', 'requested')->get();
+        $tests = ServiceAssuranceModel::whereIn('request_status', ['requested', 'new', 'unknown'])->get();
         foreach ($tests as $t) {
             $t->updateResult();
             if (!$t->isComplete()) {
