@@ -11,6 +11,14 @@ use Leaptel\API\Schemas\ResponseBase;
 class ServiceAssuranceTestType extends ResponseBase
 {
     /**
+     * Test ID. This is injected manually in APIBase, as it's the key of the response
+     *
+     * @var int
+     * @OA\Property()
+     */
+    public int $test_id;
+
+    /**
      * Test Name
      *
      * @var string

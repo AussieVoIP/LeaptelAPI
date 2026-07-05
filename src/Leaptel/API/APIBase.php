@@ -32,6 +32,9 @@ class APIBase
     // Set this to __timestamp to add a hidden timestamp value
     protected string $addtimestamp = "";
 
+    // This is used in service-assurance-tests, to add the id of the response to the object
+    protected bool $add_resp_id = false;
+
     // These are all loaded on demand.
     protected ?string $baseurl = null;
     protected ?string $username = null;
@@ -172,7 +175,7 @@ class APIBase
         }
 
         $retarr = [];
-        foreach ($body as $row) {
+        foreach ($body as $resp_id => $row) {
             if (!$row) {
                 if ($this->showurl) {
                     print "WTF no row\n";
@@ -183,6 +186,12 @@ class APIBase
                 return $this->getMultipleNotPaginated(false, $loopcount);
             }
             $obj = new $this->retclass($row);
+
+            // Used with service-assurance-tests. The name may need to change if it's used
+            // with anything else
+            if ($this->add_resp_id) {
+                $obj->test_id = $resp_id;
+            }
 
             if ($this->addtimestamp) {
                 $obj[$this->addtimestamp] = time();
@@ -385,6 +394,49 @@ class APIBase
 
             QueryCache::cacheResult($this->getUrl(), $params, ["s" => serialize($obj)]);
         }
+        return $this->filterResults([$obj])[0];
+    }
+
+    /**
+     * This is for idempotent actions that should never be cached. It will never retry,
+     * it will always crash and fail if it doesn't work the first time.
+     *
+     * @param null|callable $validator
+     * @return mixed
+     * @throws \Exception
+     */
+    protected function postEvent($validator = null): mixed
+    {
+        $params = $this->getGuzParams();
+        if ($this->showurl) {
+            print $this->getUrl() . "\n";
+        }
+        $c = $this->getGuzClient();
+        $resp = $c->request('POST', $this->getFullUrl(), $params);
+        $body = json_decode((string) $resp->getBody(), true);
+        if (isset($body['error'])) {
+            throw new \Exception("Found error - " . $resp->getBody());
+        }
+
+        if (is_callable($validator)) {
+            $body = $validator($body);
+        }
+
+        if ($body === false) {
+            throw new \Exception("Body is false after validator from " . $resp->getBody());
+        }
+
+        // If validator returned null, return null.
+        if ($body === null) {
+            return null;
+        }
+
+        $obj = new $this->retclass($body);
+
+        if ($this->addtimestamp) {
+            $obj[$this->addtimestamp] = time();
+        }
+
         return $this->filterResults([$obj])[0];
     }
 }

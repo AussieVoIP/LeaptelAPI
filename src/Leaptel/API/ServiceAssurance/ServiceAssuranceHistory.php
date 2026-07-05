@@ -3,10 +3,13 @@
 namespace Leaptel\API\ServiceAssurance;
 
 use Leaptel\API\APIBase;
-use Leaptel\API\Response\GenericResponse;
 use Leaptel\API\Response\ServiceAssuranceResult;
-use Leaptel\API\Response\ServiceAssuranceTestType;
 
+/**
+ * You should be using Core\ServiceAssuranceManager to interact with this API
+ *
+ * @package Leaptel\API\ServiceAssurance
+ */
 class ServiceAssuranceHistory extends APIBase
 {
     protected string $retclass = ServiceAssuranceResult::class;
@@ -25,6 +28,11 @@ class ServiceAssuranceHistory extends APIBase
     }
 
     /**
+     * Note that this actually IS PAGINATED, according to the docs, but
+     * there's nothing in the result that says how many pages they are. So,
+     * we just don't ask for ANY pages, which will return page 1, which has
+     * a maximum of 20 results.
+     *
      * @param bool $refresh
      */
     public function go(bool $refresh = false)

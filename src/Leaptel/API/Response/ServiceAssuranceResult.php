@@ -2,7 +2,7 @@
 
 namespace Leaptel\API\Response;
 
-use Leaptel\API\Components\SATestResult;
+use Leaptel\API\Components\TestResult;
 use Leaptel\API\Schemas\ResponseBase;
 
 /**
@@ -27,7 +27,7 @@ class ServiceAssuranceResult extends ResponseBase
             if (!is_array($res)) {
                 $this->test_error = $r;
             } else {
-                $this->test_result  = new SATestResult($res);
+                $this->test_result  = new TestResult($res);
             }
         }
     }
@@ -91,15 +91,15 @@ class ServiceAssuranceResult extends ResponseBase
     /**
      * Test Result Object
      *
-     * @var null|SATestResult
+     * @var null|TestResult
      * @OA\Property()
      */
-    public ?SATestResult $test_result = null;
+    public ?TestResult $test_result = null;
 
     /**
      * Test Error string from test_result
      *
-     * @var null|SATestResult
+     * @var string
      * @OA\Property()
      */
     public string $test_error;

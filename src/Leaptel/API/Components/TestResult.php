@@ -8,10 +8,11 @@ use Leaptel\API\Schemas\SchemaBase;
  * @OA\Schema(description="NBNco Service Test EVENT remapped object", type="object")
  * @package Leaptel
  */
-class SATestResult extends SchemaBase
+class TestResult extends SchemaBase
 {
     public array $__skipvars = [
         "serviceTest" => "Mostly redundant",
+        "serviceHealth" => "Dedicated Object",
     ];
 
     /**
@@ -50,6 +51,9 @@ class SATestResult extends SchemaBase
         foreach ($measurements as $m) {
             $mobj = new SAMeasurement($m);
             $this->measurements[$mobj->getKey()] = $mobj;
+        }
+        if (!empty($row['serviceHealth'])) {
+            $this->service_health = new ServiceHealth($row['serviceHealth']);
         }
     }
 
@@ -140,4 +144,12 @@ class SATestResult extends SchemaBase
      * @OA\Property()
      */
     public array $measurements;
+
+    /**
+     * Service Health from a SH Test
+     *
+     * @var null|ServiceHealth
+     * @OA\Property()
+     */
+    public ?ServiceHealth $service_health = null;
 }
