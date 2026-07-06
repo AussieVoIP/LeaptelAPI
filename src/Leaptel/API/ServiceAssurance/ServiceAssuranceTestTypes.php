@@ -25,7 +25,7 @@ class ServiceAssuranceTestTypes extends APIBase
     public function go(bool $refresh = false, ?string $onlytype = null)
     {
         $retarr = [];
-        $types = ["FTTN", "FTTC", "FTTP", "FW", "HFC"]; // Unknown type for Satellite
+        $types = ["FTTN", "FTTC", "FTTP", "FW", "HFC", "FTTB"]; // There is no type for Satellite.
         $results = [];
         foreach ($types as $t) {
             if ($onlytype !== null && $onlytype !== $t) {
