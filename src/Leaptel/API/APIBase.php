@@ -35,6 +35,10 @@ class APIBase
     // This is used in service-assurance-tests, to add the id of the response to the object
     protected bool $add_resp_id = false;
 
+    // To assist in keeping responses unique, generate a hash of the body if requested. This
+    // also adds __orig_row to the object, too.
+    protected bool $addhash = false;
+
     // These are all loaded on demand.
     protected ?string $baseurl = null;
     protected ?string $username = null;
@@ -134,10 +138,10 @@ class APIBase
         return $retarr;
     }
 
-    protected function getMultipleNotPaginated(bool $refresh = false, int $loopcount = 0): array
+    protected function getMultipleNotPaginated(bool $refresh = false, int $loopcount = 0, ?Response $prev = null): array
     {
         if ($loopcount > $this->retrycount) {
-            throw new \Exception("Aborting " . $this->getFullUrl() . " after $loopcount attempts");
+            throw new \Exception("Aborting " . $this->getFullUrl() . " after $loopcount attempts  - last result returned " . $prev->getStatusCode() . " and contained '" . $prev->getBody() . "'");
         }
         $params = $this->getGuzParams();
         if ($refresh) {
@@ -169,7 +173,7 @@ class APIBase
                     print "Retrying\n";
                 }
                 $loopcount++;
-                return $this->getMultipleNotPaginated(false, $loopcount);
+                return $this->getMultipleNotPaginated(false, $loopcount, $resp);
             }
             QueryCache::cacheResult($this->getUrl(), $params, ["respbody" => (string) $resp->getBody()]);
         }
@@ -184,6 +188,13 @@ class APIBase
                 }
                 $loopcount++;
                 return $this->getMultipleNotPaginated(false, $loopcount);
+            }
+            if ($this->addhash) {
+                // Not wonderfully happy with this, but it'll have to do. Ordering of
+                // hash key names is not guaranteed
+                $hashstr = json_encode($row);
+                $row['request_hash'] = hash("sha256", $hashstr);
+                $row['__orig_row'] = $hashstr;
             }
             $obj = new $this->retclass($row);
 
@@ -289,6 +300,8 @@ class APIBase
         }
         // $params['debug'] = true;
         $body = null;
+        $hash = null;
+        $respbody = null;
         $qc = QueryCache::getCachedResult($this->getUrl(), $params, $this->cacheforsecs);
         if ($qc) {
             if ($this->showurl) {
@@ -296,6 +309,9 @@ class APIBase
             }
             $respbody = $qc['respbody'] ?? null;
             $body = json_decode($respbody, true);
+            if ($this->addhash) {
+                $hash = hash("sha256", $respbody);
+            }
         }
         if (!$body) {
             if ($this->showurl) {
@@ -304,7 +320,11 @@ class APIBase
             $c = $this->getGuzClient();
             $loopcount++;
             $resp = $c->request('GET', $this->getFullUrl(), $params);
-            $body = json_decode((string) $resp->getBody(), true);
+            $respbody = (string) $resp->getBody();
+            if ($this->addhash) {
+                $hash = hash("sha256", $respbody);
+            }
+            $body = json_decode($respbody, true);
             if (isset($body['error'])) {
                 if ($this->showurl) {
                     print $resp->getBody() . "\n";
@@ -312,10 +332,11 @@ class APIBase
                 }
                 return $this->getSingle(false, $validator, $loopcount);
             }
-            QueryCache::cacheResult($this->getUrl(), $params, ["respbody" => (string) $resp->getBody()]);
+            QueryCache::cacheResult($this->getUrl(), $params, ["respbody" => $respbody]);
         }
 
         $origbody = $body;
+
         if (is_callable($validator)) {
             $body = $validator($body);
         }
@@ -330,6 +351,10 @@ class APIBase
             return null;
         }
 
+        if ($hash) {
+            $body['request_hash'] = $hash;
+            $body['__orig_row'] = $respbody;
+        }
         $obj = new $this->retclass($body);
 
         if ($this->addtimestamp) {

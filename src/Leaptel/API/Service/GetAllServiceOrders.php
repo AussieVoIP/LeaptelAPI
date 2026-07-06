@@ -1,30 +1,29 @@
 <?php
 
-namespace Leaptel\API\Customers;
+namespace Leaptel\API\Service;
 
 use Leaptel\API\APIBase;
 use Leaptel\API\Response\CustomerOrder;
 
 /** @package Leaptel\API */
-class CustomerOrders extends APIBase
+class GetAllServiceOrders extends APIBase
 {
-    protected int $customer_id;
-    // protected bool $showurl = true;
-
     protected string $retclass = CustomerOrder::class;
     protected string $indexby = "order_id";
     protected int $cacheforsecs = 86400;
 
-    // Add a "timestamp" value to these objects
-    protected string $addtimestamp = "timestamp";
-
     // Generate a hash of the raw result
     protected bool $addhash = true;
 
-    public function __construct(int $customer_id)
-    {
-        $this->customer_id = $customer_id;
-        $this->path = '/customers/' . $this->customer_id . "/orders";
+
+    /**
+     * @param string $serviceid
+     * @return void
+     */
+    public function __construct(
+        private string $serviceid
+    ) {
+        $this->path = '/services/' . $this->serviceid . '/orders';
     }
 
     /** @return \Leaptel\API\Response\CustomerOrder[]  */

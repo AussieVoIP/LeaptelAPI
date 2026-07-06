@@ -7,8 +7,10 @@ use Leaptel\Addressify\Addressify;
 use Leaptel\API\Customers;
 use Leaptel\API\Customers\GetAllCustomers;
 use Leaptel\API\Customers\GetAllServicesForCustomer;
+use Leaptel\API\Orders\GetOrderByID;
 use Leaptel\API\Location\GetServiceQual;
 use Leaptel\API\Request\SQ;
+use Leaptel\API\Service\GetAllServiceOrders;
 use Leaptel\API\Service\GetServiceDetails;
 use Leaptel\API\ServiceAssurance\ServiceAssuranceHistory;
 use Leaptel\API\ServiceAssurance\GetServiceAssuranceTest;
@@ -43,6 +45,17 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        $svc = "219655";
+        $svc = "215359";
+        $orders = ["517780", "519474", "519483", "519484"];
+        foreach ($orders as $oid) {
+            $m = (new GetOrderByID($oid))->go();
+            print "$oid - " . json_encode($m) . "\n";
+        }
+        exit;
+        $o = (new GetAllServiceOrders($svc))->go();
+        var_dump($o);
+        exit;
         $test = ServiceAssuranceManager::getServiceAssuranceTestTypes();
         var_dump($test);
         exit;

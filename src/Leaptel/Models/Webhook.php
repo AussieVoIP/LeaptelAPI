@@ -38,6 +38,7 @@ class Webhook extends Model
             $wh->order_id = $payload['order_id'] ?? null;
             $wh->save();
             $retarr[] = $wh;
+            return $retarr;
         } elseif ($wh->type == "OutageEvent") {
             $wh->order_id = $payload['outage_id'];
             $scope = $payload['scope'];
@@ -56,7 +57,7 @@ class Webhook extends Model
             $retarr[] = $wh;
             return $retarr;
         }
-        throw new \Exception("Never reached");
+        throw new \Exception("This is in Webhook model and should never be reached");
     }
 
     private static function getServerVars(): array

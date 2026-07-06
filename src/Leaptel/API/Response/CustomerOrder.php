@@ -4,6 +4,7 @@ namespace Leaptel\API\Response;
 
 use Leaptel\API\Schemas\ResponseBase;
 use Leaptel\Models\NBNService;
+use Leaptel\Models\ServiceOrder;
 
 /**
  * @OA\Schema(description="Customer Order from Customers/CustomerOrders ", type="object")
@@ -11,6 +12,14 @@ use Leaptel\Models\NBNService;
  */
 class CustomerOrder extends ResponseBase
 {
+    private ?ServiceOrder $somodel = null;
+
+    protected function finishImport(array $row)
+    {
+        // Generate/update the model
+        $m = $this->getServiceOrderModel();
+    }
+
     /**
      * Order ID
      *
@@ -153,9 +162,35 @@ class CustomerOrder extends ResponseBase
      */
     public int $timestamp;
 
+    public array $nbn_callbacks = [];
+
+    /**
+     * Well I'm sure this will not work.
+     *
+     * @return \DateTimeImmutable
+     */
+    public function getLatestEventTime(): \DateTimeImmutable
+    {
+        if (!$this->nbn_callbacks) {
+            // Not sure how useful this will be...
+            $this->nbn_callbacks = [["event_time" => $this->start]];
+        }
+        $event = new \DateTimeImmutable("2000-01-01 00:00:00");
+        foreach ($this->nbn_callbacks as $row) {
+            if (empty($row['event_time'])) {
+                throw new \Exception("No et in row " . json_encode($row));
+            }
+            $ts = new \DateTimeImmutable($row['event_time']);
+            if ($ts > $event) {
+                $event = $ts;
+            }
+        }
+        return $event;
+    }
 
     public function getOrderDescription(): string
     {
+        return "Order ID " . $this->order_id . " - " . $this->description;
         return $this->service_id . " (Order ID " . $this->order_id . ") - " . $this->description;
     }
 
@@ -191,5 +226,25 @@ class CustomerOrder extends ResponseBase
             $retarr["Details"] = $this->latest_non_system_comment;
         }
         return $retarr;
+    }
+
+    public function getServiceOrderModel(): ServiceOrder
+    {
+        if ($this->somodel === null) {
+            $m = ServiceOrder::fromCustomerOrder($this);
+            if ($m) {
+                $this->somodel = $m;
+            } else {
+                print "Why did I not get created?\n";
+                exit;
+            }
+        }
+        return $this->somodel;
+    }
+
+    public function usingServiceOrderModel(ServiceOrder $somodel): CustomerOrder
+    {
+        $this->somodel = $somodel;
+        return $this;
     }
 }
