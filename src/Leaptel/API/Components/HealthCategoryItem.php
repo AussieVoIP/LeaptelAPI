@@ -63,10 +63,10 @@ class HealthCategoryItem extends SchemaBase
     /**
      * Time Stamp, in "2026-07-05T04:04:46.698Z" format
      *
-     * @var string
+     * @var null|string
      * @OA\Property()
      */
-    public string $timeStamp;
+    public ?string $timeStamp;
 
     /**
      * Unit

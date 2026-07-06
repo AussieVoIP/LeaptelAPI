@@ -43,6 +43,13 @@ class TestCommand extends Command
      */
     public function handle()
     {
+        $test = ServiceAssuranceManager::getServiceAssuranceTestTypes();
+        var_dump($test);
+        exit;
+        $all = ServiceAssuranceManager::getAllServiceAssuranceTests("215359");
+        var_dump($all);
+        exit;
+        /*
         var_dump(ServiceAssuranceManager::updateIncompleteTests());
         exit;
         $me = "219655";
@@ -55,7 +62,7 @@ class TestCommand extends Command
         exit;
         var_dump($sa->getResult());
         exit;
-        /*
+        */
         $custs = (new GetAllCustomers())->go();
         foreach ($custs as $c) {
             $svcs = (new GetAllServicesForCustomer($c->id))->go();
@@ -66,7 +73,6 @@ class TestCommand extends Command
         }
         exit;
         $me = "201756"; // FW
-        */
         $me = "219655"; // FTTP
         $test = ServiceAssuranceManager::getServiceAssuranceTestType("FTTP", "SH");
         $r = ServiceAssuranceManager::requestServiceAssurance($test, $me);

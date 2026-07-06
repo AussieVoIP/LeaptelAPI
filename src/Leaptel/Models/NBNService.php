@@ -13,6 +13,7 @@ class NBNService extends Model
     protected $guarded = [];
 
     private ?Collection $events = null;
+    private ?Collection $sa = null;
 
     public static function updateDb(CustomerService $cs, ?ServiceDetails $sd = null): NBNService
     {
@@ -206,11 +207,19 @@ class NBNService extends Model
         return $td['Username'] ?? "";
     }
 
-    public function getEvents()
+    public function getEvents(): Collection
     {
         if ($this->events === null) {
             $this->events = Webhook::where("service_id", $this->service_id)->get();
         }
         return $this->events;
+    }
+
+    public function getServiceAssurances(): Collection
+    {
+        if ($this->sa === null) {
+            $this->sa = ServiceAssurance::where("service_id", $this->service_id)->get();
+        }
+        return $this->sa;
     }
 }
