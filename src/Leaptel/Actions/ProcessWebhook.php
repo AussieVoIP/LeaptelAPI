@@ -19,6 +19,6 @@ class ProcessWebhook
         }
         $a = new IncomingWebhook($this->wh);
         $result = $a->process();
-        return response()->json(["status" => "complete", "id" => $this->wh->id, "result" => $result]);
+        return response()->json(["status" => "complete", "uuid" => $this->wh->uuid, "result" => $result]);
     }
 }

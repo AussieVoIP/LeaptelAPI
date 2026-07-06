@@ -8,6 +8,7 @@ use Ramsey\Uuid\Uuid;
 
 class Webhook extends Model
 {
+    public $incrementing = false;
     protected $table = 'webhooks';
     protected $guarded = [];
     protected $casts = [
@@ -22,7 +23,7 @@ class Webhook extends Model
 
     public static function storeRequest(Request $req): array
     {
-        $uuid = Uuid::uuid7();
+        $uuid = Uuid::uuid7()->toString();
         $payload = $req->all();
         $retarr = [];
         $wh = new self(["uuid" => $uuid]);
