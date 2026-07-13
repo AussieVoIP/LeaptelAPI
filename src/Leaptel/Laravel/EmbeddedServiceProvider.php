@@ -8,6 +8,7 @@ use Leaptel\Commands\Ctags;
 use Leaptel\Commands\LVCAdd;
 use Leaptel\Commands\LVCModify;
 use Leaptel\Commands\RunWebhook;
+use Leaptel\Commands\ServiceOrderCommand;
 use Leaptel\Commands\TestCommand;
 
 class EmbeddedServiceProvider extends \Illuminate\Support\ServiceProvider
@@ -26,6 +27,7 @@ class EmbeddedServiceProvider extends \Illuminate\Support\ServiceProvider
                 LVCModify::class,
                 Ctags::class,
                 RunWebhook::class,
+                ServiceOrderCommand::class,
             ]);
             $this->loadMigrationsFrom(__DIR__ . "/migrations");
         }

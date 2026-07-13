@@ -223,9 +223,10 @@ class APIBase
         return $this->filterResults($retarr);
     }
 
-    public function getMultiplePaginated(string $bodykey, string $paginationkey = "pagination", bool $refresh = false, int $loopcount = 0): array
+    public function getMultiplePaginated(string $bodykey, string $paginationkey = "pagination", bool $refresh = false, int $loopcount = 0, ?Response $prev = null): array
     {
         if ($loopcount > $this->retrycount) {
+            throw new \Exception("Aborting " . $this->getFullUrl() . " after $loopcount attempts  - last result returned " . $prev->getStatusCode() . " and contained '" . $prev->getBody() . "'");
             throw new \Exception("Aborting " . $this->getUrl() . " after $loopcount attempts");
         }
         $params = $this->getGuzParams();
@@ -259,7 +260,7 @@ class APIBase
                     if ($this->showurl) {
                         print "Retrying " . $this->showurl . " - attempt $loopcount\n";
                     }
-                    return $this->getMultiplePaginated($bodykey, $paginationkey, false, $loopcount);
+                    return $this->getMultiplePaginated($bodykey, $paginationkey, false, $loopcount, $resp);
                 } else {
                     foreach ($body[$bodykey] as $c) {
                         if ($this->addtimestamp) {
@@ -274,6 +275,14 @@ class APIBase
         }
         $retarr = [];
         foreach ($chunks as $row) {
+            if ($this->addhash) {
+                // Not wonderfully happy with this, but it'll have to do. Ordering of
+                // hash key names is not guaranteed
+                $hashstr = json_encode($row);
+                $row['request_hash'] = hash("sha256", $hashstr);
+                $row['__orig_row'] = $hashstr;
+            }
+
             $obj = new $this->retclass($row);
 
             if ($this->indexby) {

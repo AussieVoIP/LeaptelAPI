@@ -46,6 +46,11 @@ class TestCommand extends Command
     public function handle()
     {
         $svc = "219655";
+        $o = (new GetAllServiceOrders($svc))->go();
+        foreach ($o as $id => $r) {
+            print "$id: " . json_encode($r) . "\n";
+        }
+        exit;
         $svc = "215359";
         $orders = ["517780", "519474", "519483", "519484"];
         foreach ($orders as $oid) {
@@ -53,7 +58,6 @@ class TestCommand extends Command
             print "$oid - " . json_encode($m) . "\n";
         }
         exit;
-        $o = (new GetAllServiceOrders($svc))->go();
         var_dump($o);
         exit;
         $test = ServiceAssuranceManager::getServiceAssuranceTestTypes();

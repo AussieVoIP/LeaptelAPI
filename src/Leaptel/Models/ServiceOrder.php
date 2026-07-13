@@ -38,8 +38,29 @@ class ServiceOrder extends Model
         return $m;
     }
 
+    public function getHumanStatus(): string
+    {
+        switch ($this->status) {
+            case "closed":
+                return "Completed";
+            case "on hold":
+                return "On Hold";
+        }
+        return "Fix ServiceOrder - Unknown " . $this->status;
+    }
+
     public function getCustomerOrder(): CustomerOrder
     {
         return unserialize($this->object);
+    }
+
+    public function getDescription(): string
+    {
+        return "Order ID " . $this->order_id . " " . $this->description . " (" . $this->getHumanStatus() . ")";
+    }
+
+    public function getDetailsUrl(): string
+    {
+        return route("sodetails", ["orderhash" => $this->orderhash]);
     }
 }

@@ -16,8 +16,8 @@ class CustomerOrder extends ResponseBase
 
     protected function finishImport(array $row)
     {
-        // Generate/update the model
-        $m = $this->getServiceOrderModel();
+        // Generate/update the service order model
+        $this->getServiceOrderModel();
     }
 
     /**
@@ -190,7 +190,7 @@ class CustomerOrder extends ResponseBase
 
     public function getOrderDescription(): string
     {
-        return "Order ID " . $this->order_id . " - " . $this->description;
+        return "Service " . $this->service_id . ", Order ID " . $this->order_id . " - " . $this->description;
         return $this->service_id . " (Order ID " . $this->order_id . ") - " . $this->description;
     }
 
@@ -251,7 +251,7 @@ class CustomerOrder extends ResponseBase
     public function getDescription(): string
     {
         if ($this->description === "service") {
-            return "Outage";
+            return "Service";
         }
         return $this->service_type ?? "Unknown";
     }
