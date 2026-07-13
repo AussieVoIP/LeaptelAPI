@@ -247,4 +247,12 @@ class CustomerOrder extends ResponseBase
         $this->somodel = $somodel;
         return $this;
     }
+
+    public function getDescription(): string
+    {
+        if ($this->description === "service") {
+            return "Outage";
+        }
+        return $this->service_type ?? "Unknown";
+    }
 }

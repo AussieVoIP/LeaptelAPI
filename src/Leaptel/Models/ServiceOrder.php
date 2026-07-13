@@ -25,7 +25,7 @@ class ServiceOrder extends Model
             // Need to create a new one!
             $m = new self($params);
             $m->service_id = $co->service_id;
-            $m->description = $co->service_type;
+            $m->description = $co->getDescription();
             $m->customer_id = $co->customer_id;
             $m->action = $co->action;
             $m->status = $co->status;

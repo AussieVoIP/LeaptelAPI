@@ -22,17 +22,17 @@ class ServiceOrderStatus extends Model
         $co = $so->getCustomerOrder();
         $event_time = $co->getLatestEventTime();
         if ($s->event_time < $event_time) {
-            print "Making it\n";
+            // print "Making it\n";
             $s->event_time = $event_time;
             $s->action = $co->action;
             $s->status = $co->status;
-            $s->description = $co->service_type;
+            $s->description = $co->getDescription();
             $s->details = ["latest_hash" => $co->request_hash, "known" => [$co->request_hash => $co->status]];
             $s->save();
         }
         $details = $s->details;
         if (empty($details['known'][$co->request_hash])) {
-            print "updating details\n";
+            // print "updating details\n";
             $details['known'][$co->request_hash] = $co->status;
             $s->details = $details;
             $s->save();
