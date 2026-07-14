@@ -23,7 +23,25 @@
     <ul></ul>
 </div>
 
+// You can also add a standard text input called 'locid', which will also get filled in
+// when you select an item in the dropdown, instead of having the POST form. Example:
+
+<form method="GET" action="{{ route('servicequal') }}">
+    <div class='p-1'>
+        <x-input-label for="locid" :value="__('Run Service Qualification for Location ID')" />
+        <x-text-input id="locid" name="locid" placeholder="LOC...." :value="old('LOC....')" required autofocus />
+        <x-input-error :messages="$errors->get('locid')" class="mt-2" />
+        <x-primary-button class="xms-3">
+            {{ __('Qualify') }}
+        </x-primary-button>
+    </div>
+</form>
+
+// You need to add @include("leaptel::address-lookup") to pull this code in, probably
+// in your main app theme or something that's on every page.
+
 --}}
+
 <style>
     .tooltip {
         visibility: hidden;
@@ -57,9 +75,14 @@
         const addrlookup = document.getElementById('addrlookup');
         const misclick = document.getElementById('misclick');
         const lookups = document.getElementById('lookups');
+        const locid = document.getElementById('locid');
         addrlookup.value = misclick.getAttribute('data-origquery');
         misclick.classList.add('hidden');
         lookups.classList.remove('hidden');
+        // This may not be present
+        if (locid) {
+            locid.value = "";
+        }
     }
 
 
@@ -137,10 +160,20 @@
         misclick.setAttribute("data-origquery", t.getAttribute("data-origquery"));
         val = t.getAttribute('data-fulldesc');
         // console.log("Clicked", t, val);
+
+        hash = t.getAttribute("data-hash");
+        document.getElementById('addrhash').value = hash;
+
         document.getElementById('addrlookup').value = t.getAttribute('data-fulldesc');
-        document.getElementById('addrhash').value = t.getAttribute("data-hash");
         document.getElementById('prevquery').value = t.getAttribute("data-origquery");
         document.getElementById('querysource').value = t.getAttribute("data-querysource");
+        // If hash starts with LOC, then set the locid input value, if it exists.
+        if (hash.startsWith("LOC")) {
+            const locid = document.getElementById('locid');
+            if (locid) {
+                locid.value = hash;
+            }
+        }
     }
 
     // Annoying Async handlers
