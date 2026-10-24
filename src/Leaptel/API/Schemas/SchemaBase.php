@@ -7,6 +7,7 @@ use JsonSerializable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 
+#[\AllowDynamicProperties]
 abstract class SchemaBase implements
     Arrayable,
     ArrayAccess,
