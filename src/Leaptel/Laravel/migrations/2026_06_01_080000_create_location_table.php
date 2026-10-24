@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer("unit")->nullable();
             $table->integer("level")->nullable();
             $table->char('nbnlocid')->nullable();
-            $table->json('details')->default('[]');
+            $table->json('details')->nullable();
             $table->timestamps();
         });
     }

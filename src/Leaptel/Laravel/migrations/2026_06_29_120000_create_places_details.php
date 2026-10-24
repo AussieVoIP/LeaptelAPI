@@ -24,7 +24,7 @@ return new class extends Migration
             $table->char('serviceStatus');
             $table->char('techType');
             $table->char('area_description');
-            $table->json('raw')->default('[]');
+            $table->json('raw')->nullable();
         });
     }
 

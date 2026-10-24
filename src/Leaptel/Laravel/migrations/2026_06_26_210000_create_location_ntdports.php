@@ -22,7 +22,7 @@ return new class extends Migration
             $table->char('service_provider_name')->nullable();
             $table->char('resourceRef')->nullable();
             $table->char('avc_id')->nullable();
-            $table->json('raw')->default('[]');
+            $table->json('raw')->nullable();
             $table->unique(['location_id', 'port_name']);
         });
     }

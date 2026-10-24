@@ -28,7 +28,7 @@ return new class extends Migration
             $table->char('postcode');
             $table->char('active');
             $table->integer("default_site_contact")->nullable();
-            $table->json('details')->default('[]');
+            $table->json('details')->nullable();
             $table->timestamps();
         });
     }

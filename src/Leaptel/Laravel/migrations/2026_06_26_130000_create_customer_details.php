@@ -26,7 +26,7 @@ return new class extends Migration
             $table->char('sms_header')->nullable();
             $table->char('sms_footer')->nullable();
             $table->char('email_view')->nullable();
-            $table->json('details')->default('[]');
+            $table->json('details')->nullable();
         });
     }
 
