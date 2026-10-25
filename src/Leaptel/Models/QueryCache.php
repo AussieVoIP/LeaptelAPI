@@ -14,6 +14,11 @@ class QueryCache extends Model
     protected $guarded = [];
     protected $casts = ['respbody' => 'array'];
 
+    /**
+     * Set to false to totally disable the cache
+     */
+    public static bool $enabled = false;
+
     public static function getPriKey(string $baseurl, array $params)
     {
         $hash = hash('sha256', $baseurl . json_encode($params));
@@ -47,6 +52,9 @@ class QueryCache extends Model
 
     public static function getCachedObj(string $baseurl, array $params, int $maxage = 300)
     {
+        if (!self::$enabled) {
+            return null;
+        }
         $key = self::getPriKey($baseurl, $params);
         $o = self::where($key)->first();
         if (!is_object($o)) {
@@ -79,6 +87,9 @@ class QueryCache extends Model
 
     public static function cacheResult(string $baseurl, array $params, array $result)
     {
+        if (!self::$enabled) {
+            return null;
+        }
         $key = self::getPriKey($baseurl, $params);
         $c = self::firstOrCreate($key);
         if (!$c->rawparams) {

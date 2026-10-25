@@ -2,11 +2,11 @@
 
 namespace Leaptel\API\Orders;
 
-use App\Models\Product;
 use Leaptel\API\APIBase;
 use Leaptel\API\Components\NBNPortRecord;
 use Leaptel\API\Components\OrderContact;
 use Leaptel\API\Request\OrderRequest;
+use Leaptel\API\Response\GenericResponse;
 use Leaptel\API\Response\NBNSQResponse;
 use Leaptel\API\Response\WholesalerProduct;
 use Override;
@@ -19,7 +19,6 @@ class CreateNewNBN extends APIBase
     protected OrderRequest $order;
     protected ?NBNSQResponse $sq = null;
     protected ?WholesalerProduct $plan = null;
-    protected ?Product $product = null;
     protected array $avalableports = [];
     protected ?NBNPortRecord $port = null;
     protected ?OrderContact $oc = null;
@@ -32,6 +31,26 @@ class CreateNewNBN extends APIBase
         $this->order->carrier = "nbn";
         $this->order->order_type = "data";
         $this->order->connection_type = "new";
+        $this->order->layer_2 = "no";
+    }
+
+    /**
+     * Order at a location without a full service qualification response, optionally on a
+     * specific port of an existing NTD.
+     *
+     * @param string $locationId
+     * @param null|string $ntdId
+     * @param null|int $ntdPort
+     * @return CreateNewNBN
+     */
+    public function usingLocationId(string $locationId, ?string $ntdId = null, ?int $ntdPort = null): CreateNewNBN
+    {
+        $this->order->location_id = $locationId;
+        if ($ntdId !== null && $ntdPort !== null) {
+            $this->order->ntd_id = $ntdId;
+            $this->order->ntd_port = $ntdPort;
+        }
+        return $this;
     }
 
     /**
@@ -132,11 +151,15 @@ class CreateNewNBN extends APIBase
         return $this;
     }
 
-    public function usingProduct(Product $product): CreateNewNBN
+    /**
+     * Set the plan ID
+     *
+     * @param int $planId
+     * @return CreateNewNBN
+     */
+    public function usingPlanId(int $planId): CreateNewNBN
     {
-        $this->product = $product;
-        // $this->order->product_id = $this->product->product_id;
-        $this->order->plan_id = $this->product->plan_id;
+        $this->order->plan_id = $planId;
         return $this;
     }
 
@@ -162,6 +185,18 @@ class CreateNewNBN extends APIBase
         $this->order->realm = $realm;
     }
 
+    /**
+     * Layer 3 orders need a realm. Username and password is optional.
+     *
+     * @param string $realm
+     * @return CreateNewNBN
+     */
+    public function setRealm(string $realm): CreateNewNBN
+    {
+        $this->order->realm = $realm;
+        return $this;
+    }
+
     /** @return OrderRequest  */
     public function getOrderRequest(): OrderRequest
     {
@@ -174,16 +209,19 @@ class CreateNewNBN extends APIBase
         return $this->order->toArray();
     }
 
-    public function go()
+    /**
+     * Actually place the order.
+     *
+     * @return GenericResponse Contains order_id and service_id
+     * @throws \Exception If it does not return an order id
+     */
+    public function go(): GenericResponse
     {
-        print "Creating an order!\n";
-        $c = $this->getGuzClient();
-        $params = $this->getGuzParams();
-        $params['debug'] = true;
-        var_dump($params['form_params']);
-        $resp = $c->request('POST', $this->getFullUrl(), $params);
-        $body = json_decode((string) $resp->getBody(), true);
-        var_dump($body);
-        exit;
+        return $this->postEvent(function ($body) {
+            if (empty($body['order_id'])) {
+                throw new \Exception("Order was not created - " . json_encode($body));
+            }
+            return $body;
+        });
     }
 }

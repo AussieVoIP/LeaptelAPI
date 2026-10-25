@@ -60,11 +60,7 @@ class NBNService extends Model
             }
         }
 
-        if ($m->wasRecentlyCreated) {
-            print "Model created - " . json_encode($m) . "\n";
-        }
         if ($changed) {
-            print "Model changed - " . json_encode($m) . "\n";
             $m->save();
         }
         return $m;

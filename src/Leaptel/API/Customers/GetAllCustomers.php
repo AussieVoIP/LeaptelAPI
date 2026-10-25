@@ -22,34 +22,19 @@ class GetAllCustomers extends APIBase
      */
     public function go(bool $refresh = false)
     {
-        // Get all current customers in the db, to see if they need to be cleaned up
-        $tmparr = Customer::get();
-        $current = [];
-        foreach ($tmparr as $c) {
-            if ($refresh) {
-                $c->delete();
-            } else {
-                $current[$c->id] = $c;
-            }
-        }
+        // Customers we already hold locally, so any the API no longer returns can be removed
+        $current = Customer::get()->keyBy('id')->all();
 
         // Ask the API for them
         $custs = $this->getMultiplePaginated("customers", "pagination", $refresh);
 
         $retarr = [];
         foreach ($custs as $id => $cr) {
-            if (empty($current[$id])) {
-                $c = Customer::fromCustomerResponse($cr);
-            } else {
-                $c = $current[$id];
-            }
-            $retarr[$id] = $c;
+            $retarr[$id] = Customer::fromCustomerResponse($cr);
             unset($current[$id]);
         }
-        // Anything left in $current is old and bad, and should be deleted
+        // Anything left in $current is no longer known to the API
         foreach ($current as $old) {
-            print "I want to delete " . json_encode($old) . "\n";
-            exit;
             $old->delete();
         }
         return $retarr;

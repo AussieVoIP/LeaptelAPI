@@ -2,19 +2,33 @@
 
 namespace Leaptel\API;
 
-/** @package Leaptel\API */
+use Leaptel\API\Response\CustomerOrder;
+
+/**
+ * All currently open orders
+ *
+ * @package Leaptel\API
+ */
 class Orders extends APIBase
 {
     protected string $path = '/orders';
 
-    public function go(): array
+    protected string $retclass = CustomerOrder::class;
+    protected string $indexby = "order_id";
+    protected int $cacheforsecs = 30;
+
+    // Add a "timestamp" value to these objects
+    protected string $addtimestamp = "timestamp";
+
+    // Generate a hash of the raw result
+    protected bool $addhash = true;
+
+    /**
+     * @param bool $refresh Bypass the query cache
+     * @return array<int, CustomerOrder> Indexed by order_id
+     */
+    public function go(bool $refresh = false): array
     {
-        $c = $this->getGuzClient();
-        $params = $this->getGuzParams();
-        $resp = $c->request('GET', $this->getFullUrl(), $params);
-        $body = json_decode((string) $resp->getBody(), true);
-        print "Incomplete\n";
-        var_dump($body);
-        exit;
+        return $this->getMultipleNotPaginated($refresh);
     }
 }

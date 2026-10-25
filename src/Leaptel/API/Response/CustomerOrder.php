@@ -250,9 +250,11 @@ class CustomerOrder extends ResponseBase
 
     public function getDescription(): string
     {
-        if ($this->description === "service") {
+        // The open orders list has no description, only a service_type
+        $description = isset($this->description) ? $this->description : null;
+        if ($description === "service" || ($description === null && ($this->service_type ?? null) === "service")) {
             return "Service";
         }
-        return $this->service_type ?? "Unknown";
+        return $this->service_type ?? $description ?? "Unknown";
     }
 }
